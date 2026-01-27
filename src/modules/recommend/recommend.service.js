@@ -11,6 +11,7 @@
 const crypto = require('crypto');
 const { STRATEGY_MAP } = require('./strategies/index');
 const repository = require('./recommend.repository');
+const drawService = require('../draw/draw.service');
 const { formatDateTime } = require('../../common/utils');
 
 /**
@@ -32,8 +33,8 @@ async function createRecommend({
     const selectStrategy = STRATEGY_MAP[strategy];
     const ticketCount = Number.isInteger(count) ? count : parseInt(count, 10);
 
-    // 임시데이터 지금 현재는 t_lotto_draw에 아무런 데이터가 없어서 임시로 데이터를 강제러 넣음
-    let targetDrwNo = '1101';
+    // 타겟 회차 조회
+    const targetDrwNo = await drawService.getTargetDrwNo();
 
     // 티켓 생성
     const tickets = [];
