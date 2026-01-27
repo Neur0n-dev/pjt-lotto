@@ -34,7 +34,7 @@ async function postRecommend(req, res) {
 
     } catch (err) {
         return res.json({
-            ok: false,
+            result: false,
             message: err.message || '에러!!',
             status: err.status || 400,
             errors: err.details || []
@@ -50,7 +50,7 @@ async function getRecommend(req, res) {
         // UUID 형식 간단 검증
         if (!id || id.length < 36) {
             return res.json({
-                ok: false,
+                result: false,
                 message: '유효하지 않은 추천 ID입니다.',
                 status: 400
             });
@@ -60,7 +60,7 @@ async function getRecommend(req, res) {
 
         if (!result) {
             return res.json({
-                ok: false,
+                result: false,
                 message: '해당 추천 이력을 찾을 수 없습니다.',
                 status: 404
             });
@@ -70,7 +70,7 @@ async function getRecommend(req, res) {
 
     } catch (err) {
         return res.json({
-            ok: false,
+            result: false,
             message: err.message || '조회 중 에러 발생',
             status: err.status || 500
         });
@@ -91,7 +91,7 @@ async function getRecommendList(req, res) {
 
     } catch (err) {
         return res.json({
-            ok: false,
+            result: false,
             message: err.message || '목록 조회 중 에러 발생',
             status: err.status || 500
         });

@@ -60,7 +60,7 @@ async function createRecommend({
     }
 
     return {
-        ok: true,
+        result: true,
         recommendId,
         strategy,
         count,
@@ -100,7 +100,7 @@ async function getRecommendById(recommendId) {
         .map(setNo => ticketsMap[setNo]);
 
     return {
-        ok: true,
+        result: true,
         recommendId: recommendRecord.recommend_id,
         targetDrwNo: recommendRecord.target_drw_no,
         algorithm: recommendRecord.algorithm,
@@ -141,7 +141,7 @@ async function getRecommendListByFilters({ targetDrwNo, algorithm} = {}) {
     }));
 
     return {
-        ok: true,
+        result: true,
         items,
         pagination: {
             total
