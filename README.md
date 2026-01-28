@@ -1,118 +1,129 @@
-# 🎰 PJT-Lotto
+# PJT-Lotto
 
 로또 번호 추천 API 개인 프로젝트
 (Node.js + Express 기반 백엔드 프로젝트)
 
 ---
 
-## 📌 프로젝트 소개
+## 프로젝트 소개
 
 **PJT-Lotto**는 다양한 규칙과 전략을 기반으로
 로또 번호 6개를 추천해주는 **백엔드 중심 API 프로젝트**입니다.
 
-단순한 랜덤 추천에서 시작하여,
-
 - 고정 번호 / 제외 번호 처리
 - 추천 규칙 적용 (랜덤, 홀짝 비율, 합계 범위 등)
 - 추천 이력 DB 저장
-- 통계 기반 추천 전략
-
-과 같이 **단계적으로 기능을 확장**하는 것을 목표로 합니다.
-
-본 프로젝트는 단순 연습용이 아니라,
-**실제 서버 배포를 전제로 한 구조 설계와 개발 흐름**을 중점으로 진행합니다.
+- 동행복권 당첨번호 자동 동기화
 
 ---
 
-## 🛠️ 사용 기술
+## 사용 기술
 
 ### 백엔드
-- Node.js
-- Express
+- Node.js + Express
+- node-cron (스케줄링)
 
 ### 데이터베이스
 - MySQL (mysql2/promise)
 - Repository 패턴 적용
-- 추천 결과 및 이력 저장
 
 ### 기타
-- npm (패키지 관리)
-- dotenv 기반 환경 변수 관리
-- Linux 서버 배포 고려
+- dotenv 환경 변수 관리
+- 동행복권 API 연동
 
 ---
 
-## 📂 프로젝트 구조
+## 프로젝트 구조
 
-```txt
+```
 lotto/
 ├─ app.js
 ├─ package.json
-├─ .env                 # 환경 변수 (gitignore)
-├─ CLAUDE.md            # Claude Code 가이드
+├─ .env                     # 환경 변수 (gitignore)
 ├─ sql/
-│  ├─ query/            # 쿼리문
-│  ├─ schema/           # 테이블 DDL
-│  └─ seed/             # 테스트 데이터
+│  ├─ query/                # 쿼리문
+│  ├─ schema/               # 테이블 DDL
+│  └─ seed/                 # 테스트 데이터
+├─ scripts/
+│  └─ import-draw-excel.js  # 엑셀 import 스크립트
 ├─ src/
 │  ├─ common/
-│  │  └─ utils.js       # 공통 유틸리티 (14개 함수)
-│  ├─ congif/           # 환경 / DB 설정
-│  │  ├─ env.js
-│  │  └─ db.js          # MySQL 커넥션 풀
+│  │  ├─ utils.js           # 공통 유틸리티
+│  │  └─ errors/            # 에러 코드 및 AppError
+│  ├─ congif/               # 환경 / DB 설정
+│  ├─ external/
+│  │  └─ lotto-api.client.js  # 동행복권 API 클라이언트
+│  ├─ scheduler/
+│  │  ├─ index.js           # 스케줄러 초기화
+│  │  └─ draw.scheduler.js  # 회차 동기화 스케줄러
 │  └─ modules/
-│     └─ recommend/
+│     ├─ draw/              # 회차 모듈
+│     │  ├─ draw.routes.js
+│     │  ├─ draw.controller.js
+│     │  ├─ draw.service.js
+│     │  └─ draw.repository.js
+│     └─ recommend/         # 추천 모듈
 │        ├─ recommend.routes.js
 │        ├─ recommend.controller.js
 │        ├─ recommend.service.js
 │        ├─ recommend.repository.js
 │        ├─ recommend.validator.js
 │        └─ strategies/
-│           ├─ index.js           # STRATEGY_MAP
+│           ├─ index.js
 │           ├─ random.strategy.js
 │           ├─ evenOdd.strategy.js
 │           └─ sumRange.strategy.js
-├─ tests/               # 테스트 스크립트
-├─ views/               # EJS 템플릿
-└─ public/              # 정적 리소스
+├─ tests/                   # 테스트 스크립트
+├─ views/                   # EJS 템플릿
+└─ public/                  # 정적 리소스
 ```
 
 ---
 
-## API 사용법
+## API 목록
+
+### Draw API
+
+| Method | URL | 설명 |
+|--------|-----|------|
+| GET | `/draw/latest` | 최신 회차 조회 |
+| GET | `/draw/:drwNo` | 특정 회차 조회 |
+| POST | `/draw/sync/:drwNo` | 회차 동기화 (동행복권) |
+
+### Recommend API
+
+| Method | URL | 설명 |
+|--------|-----|------|
+| POST | `/recommend` | 번호 추천 생성 |
+| GET | `/recommend/:id` | 추천 이력 조회 |
+| GET | `/recommend` | 추천 목록 조회 (필터 지원) |
+
+---
+
+## API 사용 예시
 
 ### 추천 요청
 
 ```bash
-POST /recommend
-Content-Type: application/json
-
-{
-  "strategy": "random",
-  "count": 3,
-  "fixedNumbers": [7, 14],
-  "excludeNumbers": [1, 2, 3]
-}
+curl -X POST http://localhost:3000/recommend \
+  -H "Content-Type: application/json" \
+  -d '{
+    "strategy": "evenOdd",
+    "count": 3,
+    "fixedNumbers": [7, 14],
+    "excludeNumbers": [1, 2, 3]
+  }'
 ```
 
-### 파라미터
-
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| strategy | string | O | 추천 전략 (random, evenOdd, sumRange) |
-| count | number | X | 티켓 수 (1-5, 기본값: 1) |
-| fixedNumbers | number[] | X | 반드시 포함할 번호 (최대 6개) |
-| excludeNumbers | number[] | X | 반드시 제외할 번호 |
-
-### 응답 예시
+### 응답
 
 ```json
 {
-  "ok": true,
+  "result": true,
   "recommendId": "48ea7d8d-f053-4070-9b9f-2f407920c45e",
-  "strategy": "random",
+  "strategy": "evenOdd",
   "count": 3,
-  "targetDrwNo": "1101",
+  "targetDrwNo": 1208,
   "tickets": [
     [7, 12, 14, 15, 32, 41],
     [7, 14, 23, 30, 31, 43],
@@ -120,6 +131,43 @@ Content-Type: application/json
   ]
 }
 ```
+
+### 회차 조회
+
+```bash
+curl http://localhost:3000/draw/1208
+```
+
+```json
+{
+  "result": true,
+  "drwNo": 1208,
+  "drwDate": "2026-01-24 00:00:00",
+  "createdDate": "2026-01-27 21:58:55"
+}
+```
+
+---
+
+## 에러 응답
+
+```json
+{
+  "result": false,
+  "code": 2002,
+  "message": "회차 정보를 찾을 수 없습니다.",
+  "detail": "9999회"
+}
+```
+
+### 에러 코드 체계
+
+| 범위 | 모듈 |
+|------|------|
+| 1XXX | 공통 |
+| 2XXX | Draw |
+| 3XXX | Recommend |
+| 4XXX | Purchase |
 
 ---
 
@@ -143,14 +191,24 @@ npm install
 cp .env.example .env
 # .env 파일에서 DB 접속 정보 수정
 
+# DB 스키마 적용
+mysql -u root -p lotto < sql/schema/01_create_tables.sql
+mysql -u root -p lotto < sql/schema/02_indexes.sql
+mysql -u root -p lotto < sql/schema/03_constraints.sql
+
+# 역대 회차 데이터 import (선택)
+node scripts/import-draw-excel.js ./data/lotto.xlsx
+
 # 서버 실행
 npm start
-
-# 테스트
-curl -X POST http://localhost:3000/recommend \
-  -H "Content-Type: application/json" \
-  -d '{"strategy":"evenOdd","count”:3,”fixedNumbers":[3,12],"excludeNumbers":[1,2,45]}' 
 ```
+
+---
+
+## 스케줄러
+
+- **회차 동기화**: 매주 토요일 21:20 KST
+- 동행복권 API에서 최신 당첨번호 자동 수집
 
 ---
 
@@ -158,27 +216,25 @@ curl -X POST http://localhost:3000/recommend \
 
 ### 주요 테이블
 
-- `t_lotto_draw` - 회차 정보
-- `t_lotto_draw_number` - 회차별 당첨 번호
-- `t_lotto_recommend_run` - 추천 실행 이력
-- `t_lotto_recommend_number` - 추천 번호 상세
-
-### 스키마 적용
-
-```bash
-mysql -u root -p lotto < sql/schema/01_create_tables.sql
-mysql -u root -p lotto < sql/schema/02_indexes.sql
-mysql -u root -p lotto < sql/schema/03_constraints.sql
-mysql -u root -p lotto < sql/seed/draw_sample.sql
-```
+| 테이블 | 설명 |
+|--------|------|
+| `t_lotto_draw` | 회차 정보 |
+| `t_lotto_draw_number` | 회차별 당첨 번호 |
+| `t_lotto_recommend_run` | 추천 실행 이력 |
+| `t_lotto_recommend_number` | 추천 번호 상세 |
 
 ---
 
 ## 개발 진행 현황
 
-- [x] Step 1: 기본 구조 설계 및 랜덤 전략
-- [x] Step 2: 전략 패턴 확장 (random, evenOdd, sumRange)
-- [x] Step 3-1: DB 연결 준비
-- [x] Step 3-2: Repository 패턴 도입
-- [x] Step 3-3: Service-Repository 연동
-- [ ] Step 3-4: (진행 예정)
+- [x] Recommend: 기본 구조 설계 및 랜덤 전략
+- [x] Recommend: 전략 패턴 확장 (random, evenOdd, sumRange)
+- [x] Recommend: Repository 패턴 및 DB 연동
+- [x] Recommend: 추천 이력 조회 API
+- [x] Draw: 회차 조회 API
+- [x] Draw: 동행복권 API 연동
+- [x] Draw: 스케줄러 (자동 동기화)
+- [x] Draw: 엑셀 import 스크립트
+- [ ] 공통: 에러 코드 템플릿화
+- [ ] Purchase: 구매 모듈 (예정)
+- [ ] 평가: 추천/구매 결과 평가 (예정)
