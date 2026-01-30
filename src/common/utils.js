@@ -150,6 +150,21 @@ function pickRandomNumbers(min, max, count) {
  */
 
 /**
+ * 현재 시각을 KST(UTC+9) 기준 Date 객체로 반환한다.
+ * getUTCDay(), getUTCHours() 등으로 KST 요일/시간 추출 가능.
+ *
+ * **@returns** {Date} KST 기준 Date 객체
+ *
+ * **@example**
+ * const kst = getKstDate();
+ * kst.getUTCHours(); // KST 시간
+ * kst.getUTCDay();   // KST 요일 (0=일, 6=토)
+ */
+function getKstDate() {
+    return new Date(Date.now() + 9 * 60 * 60 * 1000);
+}
+
+/**
  * 날짜를 YYYY-MM-DD 형태로 포맷팅한다.
  *
  * **@param** {Date|string|number} [date=new Date()] Date 객체 또는 date로 변환 가능한 값
@@ -318,6 +333,7 @@ module.exports = {
     isSameArray,
     getRandomInt,
     pickRandomNumbers,
+    getKstDate,
     formatDate,
     formatDateTime,
     isEmpty,
