@@ -325,6 +325,43 @@ function omit(obj, keys = []) {
     return clone;
 }
 
+/**
+ * 랭크관련
+ */
+
+/**
+ * 기본번호 일치 개수와 보너스 일치 여부로 등수를 판정한다.
+ * - 6개 일치 → 1등
+ * - 5개 + 보너스 → 2등
+ * - 5개 → 3등
+ * - 4개 → 4등
+ * - 3개 → 5등
+ * - 그 외 → 0 (낙첨)
+ *
+ * **@param** {number} **matchCount** 기본번호 일치 개수 (0~6)
+ * **@param** {boolean|number} **bonusMatch** 보너스 번호 일치 여부
+ * **@returns** {number} 등수 (1~5), 낙첨은 0
+ *
+ * **@example**
+ * getRank(6, false) // → 1
+ * getRank(5, true)  // → 2
+ * getRank(2, false) // → 0
+ */
+function getRank(matchCount, bonusMatch) {
+    switch (matchCount) {
+        case 6:
+            return 1;
+        case 5:
+            return bonusMatch ? 2 : 3;
+        case 4:
+            return 4;
+        case 3:
+            return 5;
+        default:
+            return 0;
+    }
+}
+
 module.exports = {
     uniqArray,
     shuffleArray,
@@ -341,5 +378,6 @@ module.exports = {
     padLeft,
     safeTrim,
     pick,
-    omit
+    omit,
+    getRank
 };

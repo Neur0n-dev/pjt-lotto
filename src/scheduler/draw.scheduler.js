@@ -10,6 +10,7 @@
 const cron = require('node-cron');
 const drawService = require('../modules/draw/draw.service');
 const drawRepository = require('../modules/draw/draw.repository');
+const evaluateService = require('../modules/evaluate/evaluate.service');
 
 /**
  * 다음 동기화할 회차 번호 계산
@@ -38,6 +39,14 @@ async function syncLatestDraw() {
 
         const result = await drawService.syncDrawFromAPI(nextDrwNo);
         console.log(`[${timestamp}] 동기화 완료:`, result.message);
+
+        // 동기화 완료 후 추천/구매 결과 평가
+        try {
+            const evalResult = await evaluateService.evaluateAllByDrwNo(nextDrwNo);
+            console.log(`[${timestamp}] 평가 완료: 추천 ${evalResult.recommend.evaluatedCount}건, 구매 ${evalResult.purchase.evaluatedCount}건`);
+        } catch (evalErr) {
+            console.error(`[${timestamp}] 평가 실패:`, evalErr.message);
+        }
 
         return result;
 
