@@ -6,6 +6,8 @@
  *
  */
 
+const { AppError, errorCodes } = require('../common/errors');
+
 /**
  * 특정 회차 당첨 정보 조회
  * @param {number} drwNo - 요청 회차 번호
@@ -23,9 +25,7 @@ async function fetchDraw(drwNo) {
     });
 
     if (!response.ok) {
-        const error = new Error(`동행복권 API 호출 실패: ${response.status}`);
-        error.status = response.status;
-        throw error;
+        throw new AppError(errorCodes.DRAW_API_CALL_FAILED, `HTTP ${response.status}`);
     }
 
     const data = await response.json();
@@ -34,20 +34,15 @@ async function fetchDraw(drwNo) {
     const lt645List = data?.data?.result?.pstLtEpstInfo?.lt645;
 
     if (!lt645List || lt645List.length === 0) {
-        const error = new Error('로또 당첨정보를 찾을 수 없습니다.');
-        error.status = 500;
-        throw error;
+        throw new AppError(errorCodes.DRAW_API_NOT_FOUND);
     }
 
     // 요청한 회차 찾기
     const drawData = lt645List.find(item => item.ltEpsd === drwNo);
 
     if (!drawData) {
-        // 최신 회차 번호 확인
         const latestDrwNo = Math.max(...lt645List.map(item => item.ltEpsd));
-        const error = new Error(`회차 정보 없음: ${drwNo}회 (최신: ${latestDrwNo}회)`);
-        error.status = 404;
-        throw error;
+        throw new AppError(errorCodes.DRAW_NOT_FOUND, `${drwNo}회 (최신: ${latestDrwNo}회)`);
     }
 
     // 날짜 형식 변환 (YYYYMMDD → YYYY-MM-DD)

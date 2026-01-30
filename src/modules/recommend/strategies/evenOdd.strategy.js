@@ -21,6 +21,7 @@ const {
     uniqArray,
     getRandomInt
 } = require('../../../common/utils');
+const { AppError, errorCodes } = require('../../../common/errors');
 
 const TARGET_ODD = 3;
 const TARGET_EVEN = 3;
@@ -46,9 +47,7 @@ function evenOddStrategy(fixedNumbers = [], excludeNumbers = []) {
     // fixedArr안에 값이 홀/짝이 3개 이상 있으면 문제됨.
     const initial = countEvenOdd();
     if (initial.odd > TARGET_ODD || initial.even > TARGET_EVEN) {
-        throw new Error(
-            'evenOdd 전략 조건을 만족할 수 없습니다. (fixedNumbers의 홀/짝 각 갯수 확인.)'
-        );
+        throw new AppError(errorCodes.RECOMMEND_GENERATION_FAILED, 'fixedNumbers의 홀/짝 각 갯수를 확인하세요.');
     }
 
     // 후보 풀 생성

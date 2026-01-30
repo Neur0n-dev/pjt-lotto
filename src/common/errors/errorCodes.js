@@ -7,6 +7,7 @@
  *   - 2XXX: Draw 모듈
  *   - 3XXX: Recommend 모듈
  *   - 4XXX: Purchase 모듈
+ *   - 5XXX: Evaluate 모듈
  */
 
 module.exports = {
@@ -56,6 +57,16 @@ module.exports = {
         code: 2004,
         status: 500,
         message: '회차 동기화에 실패했습니다.'
+    },
+    DRAW_API_CALL_FAILED: {
+        code: 2005,
+        status: 502,
+        message: '동행복권 API 호출에 실패했습니다.'
+    },
+    DRAW_API_NOT_FOUND: {
+        code: 2006,
+        status: 404,
+        message: 'API에서 로또 당첨정보를 찾을 수 없습니다.'
     },
 
     // ================================
@@ -139,5 +150,19 @@ module.exports = {
         code: 4010,
         status: 400,
         message: 'purchaseAt은 유효한 날짜 형식이어야 합니다.'
+    },
+
+    // ================================
+    // Evaluate 모듈 (5XXX)
+    // ================================
+    EVALUATE_RECOMMEND_NUMBERS_NOT_FOUND: {
+        code: 5001,
+        status: 404,
+        message: '구매 내역 중 평가 할 ticket이 없습니다'
+    },
+    EVALUATE_PURCHASE_NUMBERS_NOT_FOUND: {
+        code: 5002,
+        status: 404,
+        message: '구매 내역 중 평가 할 ticket이 없습니다.'
     },
 };

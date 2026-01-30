@@ -19,6 +19,7 @@
 const {
     randomStrategy
 } = require('./random.strategy');
+const { AppError, errorCodes } = require('../../../common/errors');
 
 const MIN_SUM = 100;
 const MAX_SUM = 200;
@@ -35,7 +36,7 @@ function sumRangeStrategy(fixedNumbers = [], excludeNumbers = []) {
         }
     }
 
-    throw new Error(`시도횟수 ${MAX_TRY_COUNT}번을 초과 하여 번호 생성에 실패했습니다.`);
+    throw new AppError(errorCodes.RECOMMEND_GENERATION_FAILED, `시도횟수 ${MAX_TRY_COUNT}번 초과`);
 }
 
 module.exports = {

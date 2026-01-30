@@ -37,15 +37,6 @@ async function postRecommend(req, res, next) {
         return res.json(result);
 
     } catch (err) {
-        // validator에서 던진 에러는 details 포함
-        if (err.details) {
-            return res.status(400).json({
-                result: false,
-                code: errorCodes.INVALID_PARAM.code,
-                message: err.message,
-                errors: err.details
-            });
-        }
         next(err instanceof AppError ? err : new AppError(errorCodes.RECOMMEND_GENERATION_FAILED, err.message));
     }
 }

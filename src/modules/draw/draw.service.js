@@ -11,6 +11,7 @@
 const repository = require('./draw.repository');
 const lottoApiClient = require('../../external/lotto-api.client');
 const { formatDateTime } = require('../../common/utils');
+const { AppError, errorCodes } = require('../../common/errors');
 
 /**
  * 동행복권 API에서 회차 정보 동기화
@@ -49,9 +50,7 @@ async function getTargetDrwNo() {
     const latestDraw = await repository.findLatestDraw();
 
     if (!latestDraw) {
-        const error = new Error('등록된 회차 정보가 없습니다.');
-        error.status = 500;
-        throw error;
+        throw new AppError(errorCodes.DRAW_NO_DATA);
     }
 
     return latestDraw.drw_no;

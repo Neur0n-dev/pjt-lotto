@@ -13,7 +13,7 @@ const {
     toInt
 } = require('../../common/utils');
 
-const errorCodes = require('../../common/errors/errorCodes');
+const { AppError, errorCodes } = require('../../common/errors');
 
 const VALID_SOURCE_TYPES = ['MANUAL', 'RANDOM', 'RECOMMEND'];
 
@@ -79,9 +79,7 @@ function purchaseValidatorRequest(body = {}) {
     }
 
     if (errors.length > 0) {
-        const error = new Error('요청 데이터 검증 실패');
-        error.details = errors;
-        throw error;
+        throw new AppError(errorCodes.INVALID_PARAM, null, errors);
     }
 
     return {

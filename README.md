@@ -14,6 +14,8 @@
 - 추천 규칙 적용 (랜덤, 홀짝 비율, 합계 범위 등)
 - 추천 이력 DB 저장
 - 동행복권 당첨번호 자동 동기화
+- 자동 구매 스케줄러 (매 1초, tick당 12장)
+- 추천/구매 결과 당첨 평가
 
 ---
 
@@ -55,7 +57,7 @@ lotto/
 │  │  └─ lotto-api.client.js  # 동행복권 API 클라이언트
 │  ├─ scheduler/
 │  │  ├─ index.js              # 스케줄러 초기화
-│  │  ├─ draw.scheduler.js     # 회차 동기화 스케줄러
+│  │  ├─ draw.scheduler.js     # 회차 동기화 + 평가 스케줄러
 │  │  └─ purchase.scheduler.js # 자동 구매 스케줄러
 │  └─ modules/
 │     ├─ draw/              # 회차 모듈
@@ -74,12 +76,15 @@ lotto/
 │     │     ├─ random.strategy.js
 │     │     ├─ evenOdd.strategy.js
 │     │     └─ sumRange.strategy.js
-│     └─ purchase/          # 구매 모듈
-│        ├─ purchase.routes.js
-│        ├─ purchase.controller.js
-│        ├─ purchase.service.js
-│        ├─ purchase.validator.js
-│        └─ purchase.repository.js
+│     ├─ purchase/          # 구매 모듈
+│     │  ├─ purchase.routes.js
+│     │  ├─ purchase.controller.js
+│     │  ├─ purchase.service.js
+│     │  ├─ purchase.validator.js
+│     │  └─ purchase.repository.js
+│     └─ evaluate/          # 평가 모듈
+│        ├─ evaluate.service.js
+│        └─ evaluate.repository.js
 ├─ tests/                   # 테스트 스크립트
 ├─ views/                   # EJS 템플릿
 └─ public/                  # 정적 리소스
@@ -104,6 +109,14 @@ lotto/
 | POST | `/recommend` | 번호 추천 생성 |
 | GET | `/recommend/:id` | 추천 이력 조회 |
 | GET | `/recommend` | 추천 목록 조회 (필터 지원) |
+
+### Purchase API
+
+| Method | URL | 설명 |
+|--------|-----|------|
+| POST | `/purchase` | 구매 생성 |
+| GET | `/purchase/:id` | 구매 이력 조회 |
+| GET | `/purchase` | 구매 목록 조회 (필터 지원) |
 
 ---
 
@@ -162,8 +175,21 @@ curl http://localhost:3000/draw/1208
 {
   "result": false,
   "code": 2002,
-  "message": "회차 정보를 찾을 수 없습니다.",
-  "detail": "9999회"
+  "message": "회차 정보를 찾을 수 없습니다. (9999회)"
+}
+```
+
+### 검증 에러 (validator)
+
+```json
+{
+  "result": false,
+  "code": 1001,
+  "message": "유효하지 않은 파라미터입니다.",
+  "errors": [
+    "strategy는 필수 값입니다.",
+    "count는 1 이상 5 이하만 가능합니다."
+  ]
 }
 ```
 
@@ -175,6 +201,7 @@ curl http://localhost:3000/draw/1208
 | 2XXX | Draw |
 | 3XXX | Recommend |
 | 4XXX | Purchase |
+| 5XXX | Evaluate |
 
 ---
 
@@ -216,7 +243,7 @@ npm start
 
 | 스케줄러 | 주기 | 설명 |
 |----------|------|------|
-| 회차 동기화 | 매주 토요일 21:20 KST | 동행복권 API에서 최신 당첨번호 자동 수집 |
+| 회차 동기화 | 매주 토요일 21:20 KST | 동행복권 API에서 최신 당첨번호 수집 + 평가 실행 |
 | 자동 구매 | 매 1초 | 전략 랜덤 선택, tick당 12장 생성 (주간 약 527만 건) |
 
 **구매 가능 시간 (KST):**
@@ -235,10 +262,10 @@ npm start
 | `t_lotto_draw_number` | 회차별 당첨 번호 |
 | `t_lotto_recommend_run` | 추천 실행 이력 |
 | `t_lotto_recommend_number` | 추천 번호 상세 |
+| `t_lotto_recommend_result` | 추천 당첨 평가 결과 |
 | `t_lotto_purchase` | 구매(가상) 메타 |
 | `t_lotto_purchase_number` | 구매 번호 상세 |
 | `t_lotto_purchase_result` | 구매 당첨 평가 결과 |
-| `t_lotto_recommend_result` | 추천 당첨 평가 결과 |
 
 ---
 
@@ -252,6 +279,8 @@ npm start
 - [x] Draw: 동행복권 API 연동
 - [x] Draw: 스케줄러 (자동 동기화)
 - [x] Draw: 엑셀 import 스크립트
-- [x] 공통: 에러 코드 템플릿화
+- [x] 공통: 에러 코드 템플릿화 (AppError + errorCodes, 1xxx~5xxx)
+- [x] 공통: 전체 소스 AppError 통일
 - [x] Purchase: 구매 모듈 (API + 자동 구매 스케줄러)
-- [ ] 평가: 추천/구매 결과 평가 (예정)
+- [x] Evaluate: 추천/구매 결과 당첨 평가 + draw 스케줄러 연동
+- [ ] 평가: 결과 조회 API (선택)

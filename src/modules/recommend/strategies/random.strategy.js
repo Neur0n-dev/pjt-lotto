@@ -18,6 +18,7 @@ const {
     shuffleArray,
     uniqArray
 } = require('../../../common/utils');
+const { AppError, errorCodes } = require('../../../common/errors');
 
 const LOTTO_MIN = 1;
 const LOTTO_MAX = 45;
@@ -37,7 +38,7 @@ function randomStrategy(fixedNumbers = [], excludeNumbers = []) {
     const needNumbersCount = LOTTO_SIZE - fixedArr.length;
 
     if (numbers.length < needNumbersCount) {
-        throw new Error('로또 번호 조합을 생성할 수 없습니다.');
+        throw new AppError(errorCodes.RECOMMEND_GENERATION_FAILED);
     }
 
     const randomPicked = shuffleArray(numbers).slice(0, needNumbersCount);

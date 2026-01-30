@@ -8,6 +8,7 @@
  */
 
 const db = require('../../congif/db');
+const { AppError, errorCodes } = require('../../common/errors');
 
 /**
  * 추천 실행 기록 저장
@@ -46,9 +47,7 @@ async function insertRecommendNumbers(recommendId, tickets) {
     // 배열안에 데이터가 몇개 있는지 확인
     for (const t of tickets) {
         if (!Array.isArray(t) || t.length !== 6) {
-            const err = new Error('tickets는 6개 번호로 구성된 배열이어야 합니다.');
-            err.status = 400;
-            throw err;
+            throw new AppError(errorCodes.INVALID_TICKET_FORMAT);
         }
     }
 

@@ -10,6 +10,7 @@
 const repository = require('./evaluate.repository');
 const drawRepository = require('../draw/draw.repository');
 const { getRank } = require('../../common/utils');
+const { AppError, errorCodes } = require('../../common/errors');
 
 /**
  * 특정 회차의 추천 결과 일괄 평가
@@ -20,7 +21,7 @@ async function evaluateRecommendsByDrwNo(drwNo) {
     // 1. 당첨번호 존재 확인
     const drawNumbers = await drawRepository.findDrawNumbers(drwNo);
     if (!drawNumbers || drawNumbers.length === 0) {
-        throw new Error(`${drwNo}회차 당첨번호가 없습니다.`);
+        throw new AppError(errorCodes.EVALUATE_RECOMMEND_NUMBERS_NOT_FOUND, `${drwNo}회차`);
     }
 
     // 2. 미평가 추천 매칭 결과 일괄 조회
@@ -44,7 +45,7 @@ async function evaluatePurchasesByDrwNo(drwNo) {
     // 1. 당첨번호 존재 확인
     const drawNumbers = await drawRepository.findDrawNumbers(drwNo);
     if (!drawNumbers || drawNumbers.length === 0) {
-        throw new Error(`${drwNo}회차 당첨번호가 없습니다.`);
+        throw new AppError(errorCodes.EVALUATE_PURCHASE_NUMBERS_NOT_FOUND, `${drwNo}회차`);
     }
 
     // 2. 미평가 구매 매칭 결과 일괄 조회

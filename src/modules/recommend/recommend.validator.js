@@ -10,7 +10,8 @@
 // 유틸 함수 가져오기
 const {
     uniqArray, isEmpty, toInt
-} = require('../../common/utils')
+} = require('../../common/utils');
+const { AppError, errorCodes } = require('../../common/errors');
 
 const {
     getStrategyNames,
@@ -65,9 +66,7 @@ function recommendValidatorRequest(body = {}) {
     });
 
     if (errors.length > 0) {
-        const error = new Error('요청 데이터 검증 실패');
-        error.details = errors;
-        throw error;
+        throw new AppError(errorCodes.INVALID_PARAM, null, errors);
     }
 
     return {
