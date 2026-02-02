@@ -14,7 +14,7 @@ const drawRepository = require('../modules/draw/draw.repository');
 const { getKstDate, formatDate } = require('../common/utils');
 
 /** tick당 생성 티켓 수 */
-const TICKETS_PER_TICK = 12;
+const TICKETS_PER_TICK = 15;
 
 /** 동시 실행 방지 플래그 */
 let isRunning = false;
@@ -65,7 +65,10 @@ async function getTargetDrwNoCached() {
     }
 
     // 최신 회차 조회 후 다음 회차 계산
-    const latestDraw = await drawRepository.findLatestDraw();
+    const latestDraw = await drawRepository.findLatestSyncedDraw();
+    if(!latestDraw) {
+        throw new Error('동기화 된 회차가 없습니다. 동기화를 먼저 실행 하세요.')
+    }
     const nextDrwNo = latestDraw.drw_no + 1;
 
     // 다음 회차를 draw 테이블에 선등록 (FK 제약 충족)
