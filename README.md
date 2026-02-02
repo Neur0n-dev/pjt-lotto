@@ -32,6 +32,7 @@
 ### 기타
 - dotenv 환경 변수 관리
 - 동행복권 API 연동
+- swagger-jsdoc + swagger-ui-express (API 문서)
 
 ---
 
@@ -49,10 +50,13 @@ lotto/
 ├─ scripts/
 │  └─ import-draw-excel.js  # 엑셀 import 스크립트
 ├─ src/
+│  ├─ config/
+│  │  ├─ db.js                 # DB 커넥션 풀
+│  │  ├─ env.js                # 환경 변수 로드
+│  │  └─ swagger.js            # Swagger 설정 (OpenAPI 3.0)
 │  ├─ common/
 │  │  ├─ utils.js           # 공통 유틸리티
 │  │  └─ errors/            # 에러 코드 및 AppError
-│  ├─ config/               # 환경 / DB 설정
 │  ├─ external/
 │  │  └─ lotto-api.client.js  # 동행복권 API 클라이언트
 │  ├─ scheduler/
@@ -245,6 +249,9 @@ node scripts/import-draw-excel.js ./data/lotto.xlsx
 
 # 서버 실행
 npm start
+
+# API 문서 확인
+# http://localhost:3000/api-docs
 ```
 
 ---
@@ -295,4 +302,10 @@ npm start
 - [x] Evaluate: 추천/구매 결과 당첨 평가 + draw 스케줄러 연동
 - [x] Draw: 스케줄러 버그 수정
 - [x] Evaluate: 평가 결과 조회 API (추천/구매 + 등수별 집계)
-- [ ] Swagger API 문서화
+- [x] Swagger API 문서화
+- [ ] 새 전략 추가 (frequency, consecutive, hotCold)
+- [ ] 통계 API
+- [ ] 페이징 개선
+- [ ] 테스트 코드
+- [ ] 프론트엔드
+- [ ] 배포 설정

@@ -3,6 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var swaggerUi = require('swagger-ui-express');
+var swaggerSpec = require('./src/config/swagger');
 
 var drawRoutes = require('./src/modules/draw/draw.routes')
 var purchaseRoutes = require('./src/modules/purchase/purchase.routes')
@@ -21,6 +23,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/draw', drawRoutes);
 app.use('/purchase', purchaseRoutes);
