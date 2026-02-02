@@ -20,14 +20,14 @@ const {
     errorCodes
 } = require('../../common/errors');
 
+const {
+    validateDrwNo
+} = require('./evaluate.validator');
+
 // 추천 결과 조회 GET /evaluate/recommend/:drwNo
 async function getRecommendEvaluate(req, res, next) {
     try {
-        const drwNo = Number(req.params.drwNo);
-
-        if (!drwNo || isNaN(drwNo)) {
-            throw new AppError(errorCodes.DRAW_INVALID_DRW_NO);
-        }
+        const drwNo = validateDrwNo(req.params.drwNo);
 
         // 병렬로 2개 호출 (성능/응답속도 유리)
         const [recommend, recommendRankStatistics] = await Promise.all([
@@ -49,11 +49,7 @@ async function getRecommendEvaluate(req, res, next) {
 // 구매 결과 조회 GET /evaluate/purchase/:drwNo
 async function getPurchaseEvaluate(req, res, next) {
     try {
-        const drwNo = Number(req.params.drwNo);
-
-        if (!drwNo || isNaN(drwNo)) {
-            throw new AppError(errorCodes.DRAW_INVALID_DRW_NO);
-        }
+        const drwNo = validateDrwNo(req.params.drwNo);
 
         // 병렬로 2개 호출 (성능/응답속도 유리)
         const [purchase, purchaseRankStatistics] = await Promise.all([

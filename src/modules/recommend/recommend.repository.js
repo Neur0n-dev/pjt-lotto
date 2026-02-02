@@ -7,7 +7,7 @@
  *
  */
 
-const db = require('../../congif/db');
+const db = require('../../config/db');
 const { AppError, errorCodes } = require('../../common/errors');
 
 /**

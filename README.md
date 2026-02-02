@@ -52,7 +52,7 @@ lotto/
 │  ├─ common/
 │  │  ├─ utils.js           # 공통 유틸리티
 │  │  └─ errors/            # 에러 코드 및 AppError
-│  ├─ congif/               # 환경 / DB 설정
+│  ├─ config/               # 환경 / DB 설정
 │  ├─ external/
 │  │  └─ lotto-api.client.js  # 동행복권 API 클라이언트
 │  ├─ scheduler/
@@ -83,7 +83,10 @@ lotto/
 │     │  ├─ purchase.validator.js
 │     │  └─ purchase.repository.js
 │     └─ evaluate/          # 평가 모듈
+│        ├─ evaluate.routes.js
+│        ├─ evaluate.controller.js
 │        ├─ evaluate.service.js
+│        ├─ evaluate.validator.js
 │        └─ evaluate.repository.js
 ├─ tests/                   # 테스트 스크립트
 ├─ views/                   # EJS 템플릿
@@ -117,6 +120,13 @@ lotto/
 | POST | `/purchase` | 구매 생성 |
 | GET | `/purchase/:id` | 구매 이력 조회 |
 | GET | `/purchase` | 구매 목록 조회 (필터 지원) |
+
+### Evaluate API
+
+| Method | URL | 설명 |
+|--------|-----|------|
+| GET | `/evaluate/recommend/:drwNo` | 추천 평가 결과 + 등수별 집계 조회 |
+| GET | `/evaluate/purchase/:drwNo` | 구매 평가 결과 + 등수별 집계 조회 |
 
 ---
 
@@ -283,4 +293,6 @@ npm start
 - [x] 공통: 전체 소스 AppError 통일
 - [x] Purchase: 구매 모듈 (API + 자동 구매 스케줄러)
 - [x] Evaluate: 추천/구매 결과 당첨 평가 + draw 스케줄러 연동
-- [ ] 평가: 결과 조회 API (선택)
+- [x] Draw: 스케줄러 버그 수정
+- [x] Evaluate: 평가 결과 조회 API (추천/구매 + 등수별 집계)
+- [ ] Swagger API 문서화

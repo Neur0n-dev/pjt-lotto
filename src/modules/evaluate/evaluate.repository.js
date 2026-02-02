@@ -7,7 +7,7 @@
  *
  */
 
-const db = require('../../congif/db');
+const db = require('../../config/db');
 
 /**
  * 미평가 추천 매칭 결과 일괄 조회

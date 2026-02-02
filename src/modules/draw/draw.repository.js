@@ -7,7 +7,7 @@
  *
  */
 
-const db = require('../../congif/db');
+const db = require('../../config/db');
 
 /**
  * 회차 저장

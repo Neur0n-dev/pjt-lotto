@@ -7,7 +7,7 @@
  *
  */
 
-const db = require('../../congif/db');
+const db = require('../../config/db');
 
 /**
  * 구매 실행 기록 저장

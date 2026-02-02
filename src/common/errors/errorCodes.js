@@ -165,4 +165,9 @@ module.exports = {
         status: 404,
         message: '구매 내역 중 평가 할 ticket이 없습니다.'
     },
+    EVALUATE_INVALID_DRW_NO: {
+        code: 5003,
+        status: 400,
+        message: '유효하지 않은 회차 번호입니다.'
+    },
 };

@@ -11,7 +11,7 @@
  */
 
 const XLSX = require('xlsx');
-const db = require('../src/congif/db');
+const db = require('../src/config/db');
 
 // 엑셀 파일 경로 (명령줄 인자)
 const filePath = process.argv[2];

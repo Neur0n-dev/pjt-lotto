@@ -6,8 +6,8 @@
 
 var app = require('../app');
 var debug = require('debug')('lotto:server');
-  var http = require('http');
-var db = require('../src/congif/db');
+var http = require('http');
+var db = require('../src/config/db');
 
 /**
  * Get port from environment and store in Express.
