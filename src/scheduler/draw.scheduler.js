@@ -42,7 +42,7 @@ async function syncLatestDraw() {
 
         // 동기화 완료 후 추천/구매 결과 평가
         try {
-            const evalResult = await evaluateService.evaluateAllByDrwNo(nextDrwNo);
+            const evalResult = await evaluateService.createEvaluateAllByDrwNo(nextDrwNo);
             console.log(`[${timestamp}] 평가 완료: 추천 ${evalResult.recommend.evaluatedCount}건, 구매 ${evalResult.purchase.evaluatedCount}건`);
         } catch (evalErr) {
             console.error(`[${timestamp}] 평가 실패:`, evalErr.message);

@@ -106,9 +106,111 @@ async function insertPurchaseResult(purchaseId, drwNo, matchCount, bonusMatch, r
     return db.query(sql, [purchaseId, drwNo, matchCount, bonusMatch, resultRank]);
 }
 
+/**
+ * 특정 회차 추천 평가 결과 상세 조회
+ * @param {number} drwNo - 회차 번호
+ * @returns {Promise<Array>} [{ recommend_id, set_no, match_count, bonus_match, result_rank }, ...]
+ */
+async function findRecommendResultsByDrwNo(drwNo) {
+    const sql = `
+        SELECT recommend_id, set_no, drw_no, match_count, bonus_match, result_rank, created_date
+        FROM t_lotto_recommend_result
+        WHERE drw_no = ?
+        ORDER BY created_date
+    `;
+
+    return db.query(sql, [drwNo]);
+}
+
+/**
+ * 특정 회차 추천 평가 등수별 집계
+ * @param {number} drwNo - 회차 번호
+ * @returns {Promise<Array>} [{ drw_no, result_rank, count }, ...]
+ */
+async function countRecommendRanksByDrwNo(drwNo) {
+    const sql = `
+        WITH rank_list AS (
+            SELECT 1 AS result_rank
+            UNION ALL SELECT 2
+            UNION ALL SELECT 3
+            UNION ALL SELECT 4
+            UNION ALL SELECT 5
+            UNION ALL SELECT 0
+        )
+        SELECT
+            ? AS drw_no,
+            r.result_rank,
+            IFNULL(c.cnt, 0) AS count
+        FROM rank_list r
+            LEFT JOIN (
+            SELECT result_rank, COUNT(*) AS cnt
+            FROM t_lotto_recommend_result
+            WHERE drw_no = ?
+            GROUP BY result_rank
+            ) c
+        ON r.result_rank = c.result_rank
+        ORDER BY FIELD(r.result_rank, 1, 2, 3, 4, 5, 0);
+    `;
+
+    return db.query(sql, [drwNo, drwNo]);
+}
+
+/**
+ * 특정 회차 구매 평가 결과 상세 조회
+ * @param {number} drwNo - 회차 번호
+ * @returns {Promise<Array>} [{ purchase_id, match_count, bonus_match, result_rank }, ...]
+ */
+async function findPurchaseResultsByDrwNo(drwNo) {
+    const sql = `
+        SELECT purchase_id, drw_no, match_count, bonus_match, result_rank, created_date
+        FROM t_lotto_purchase_result
+        WHERE drw_no = ?
+        ORDER BY created_date
+    `;
+
+    return db.query(sql, [drwNo]);
+}
+
+/**
+ * 특정 회차 구매 평가 등수별 집계
+ * @param {number} drwNo - 회차 번호
+ * @returns {Promise<Array>} [{ drw_no, result_rank, count }, ...]
+ */
+async function countPurchaseRanksByDrwNo(drwNo) {
+    const sql = `
+        WITH rank_list AS (
+            SELECT 1 AS result_rank
+            UNION ALL SELECT 2
+            UNION ALL SELECT 3
+            UNION ALL SELECT 4
+            UNION ALL SELECT 5
+            UNION ALL SELECT 0
+        )
+        SELECT
+            ? AS drw_no,
+            r.result_rank,
+            IFNULL(c.cnt, 0) AS count
+        FROM rank_list r
+            LEFT JOIN (
+            SELECT result_rank, COUNT(*) AS cnt
+            FROM t_lotto_purchase_result
+            WHERE drw_no = ?
+            GROUP BY result_rank
+            ) c
+        ON r.result_rank = c.result_rank
+        ORDER BY FIELD(r.result_rank, 1, 2, 3, 4, 5, 0);
+    `;
+
+    return db.query(sql, [drwNo, drwNo]);
+}
+
 module.exports = {
     evaluateRecommendMatches,
     insertRecommendResult,
     evaluatePurchaseMatches,
     insertPurchaseResult,
+    findRecommendResultsByDrwNo,
+    countRecommendRanksByDrwNo,
+    findPurchaseResultsByDrwNo,
+    countPurchaseRanksByDrwNo,
 };

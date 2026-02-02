@@ -9,7 +9,7 @@
 
 const repository = require('./evaluate.repository');
 const drawRepository = require('../draw/draw.repository');
-const { getRank } = require('../../common/utils');
+const { getRank, formatDateTime} = require('../../common/utils');
 const { AppError, errorCodes } = require('../../common/errors');
 
 /**
@@ -17,7 +17,7 @@ const { AppError, errorCodes } = require('../../common/errors');
  * @param {number} drwNo - 평가 대상 회차
  * @returns {Promise<object>} 평가 결과 { drwNo, evaluatedCount }
  */
-async function evaluateRecommendsByDrwNo(drwNo) {
+async function createEvaluateRecommendsByDrwNo(drwNo) {
     // 1. 당첨번호 존재 확인
     const drawNumbers = await drawRepository.findDrawNumbers(drwNo);
     if (!drawNumbers || drawNumbers.length === 0) {
@@ -41,7 +41,7 @@ async function evaluateRecommendsByDrwNo(drwNo) {
  * @param {number} drwNo - 평가 대상 회차
  * @returns {Promise<object>} 평가 결과 { drwNo, evaluatedCount }
  */
-async function evaluatePurchasesByDrwNo(drwNo) {
+async function createEvaluatePurchasesByDrwNo(drwNo) {
     // 1. 당첨번호 존재 확인
     const drawNumbers = await drawRepository.findDrawNumbers(drwNo);
     if (!drawNumbers || drawNumbers.length === 0) {
@@ -61,13 +61,13 @@ async function evaluatePurchasesByDrwNo(drwNo) {
 }
 
 /**
- * 특정 회차의 추천 + 구매 결과 전체 평가
+ * 특정 회차의 추천 + 구매 결과 전체 평가 (몇 건 인지)
  * @param {number} drwNo - 평가 대상 회차
  * @returns {Promise<object>} 평가 결과 { drwNo, recommend, purchase }
  */
-async function evaluateAllByDrwNo(drwNo) {
-    const recommend = await evaluateRecommendsByDrwNo(drwNo);
-    const purchase = await evaluatePurchasesByDrwNo(drwNo);
+async function createEvaluateAllByDrwNo(drwNo) {
+    const recommend = await createEvaluateRecommendsByDrwNo(drwNo);
+    const purchase = await createEvaluatePurchasesByDrwNo(drwNo);
 
     return {
         drwNo,
@@ -76,8 +76,103 @@ async function evaluateAllByDrwNo(drwNo) {
     };
 }
 
+/**
+ * 특정 회차 추천 평가 결과 조회
+ * @param {number} drwNo - 평가 대상 회차
+ * @returns {Promise<object>} 평가 결과 { drwNo, recommend, purchase }
+ */
+
+async function getRecommendByDrwNo(drwNo) {
+    const records = await repository.findRecommendResultsByDrwNo(drwNo);
+
+    const items = records.map(record => ({
+        recommendId: record.recommend_id,
+        setNo: record.set_no,
+        drwNo: record.drw_no,
+        matchCount: record.match_count,
+        bonusMatch: record.bonus_match,
+        resultRank: record.result_rank,
+        createdDate: formatDateTime(record.created_date)
+    }));
+
+    return {
+        result: true,
+        items,
+    }
+}
+
+/**
+ * 특정 회차 추천 평가 결과 카운트 조회
+ * @param {number} drwNo - 평가 대상 회차
+ * @returns {Promise<object>} 평가 결과 { drwNo, recommend, purchase }
+ */
+
+async function getRecommendResultRankStatisticsByDrwNo(drwNo) {
+    const records = await repository.countRecommendRanksByDrwNo(drwNo);
+
+    const items = records.map(record => ({
+        drwNo: record.drw_no,
+        resultRank: record.result_rank,
+        count: record.count,
+    }));
+
+    return {
+        result: true,
+        items,
+    }
+}
+
+/**
+ * 특정 회차 구매 평가 결과 조회
+ * @param {number} drwNo - 평가 대상 회차
+ * @returns {Promise<object>} 평가 결과 { drwNo, recommend, purchase }
+ */
+
+async function getPurchaseByDrwNo(drwNo) {
+    const records = await repository.findPurchaseResultsByDrwNo(drwNo);
+
+    const items = records.map(record => ({
+        purchaseId: record.purchase_id,
+        drwNo: record.drw_no,
+        matchCount: record.match_count,
+        bonusMatch: record.bonus_match,
+        resultRank: record.result_rank,
+        createdDate: formatDateTime(record.created_date)
+    }));
+
+    return {
+        result: true,
+        items,
+    }
+}
+
+/**
+ * 특정 회차 구매 평가 결과 카운트 조회
+ * @param {number} drwNo - 평가 대상 회차
+ * @returns {Promise<object>} 평가 결과 { drwNo, recommend, purchase }
+ */
+
+async function getPurchaseResultRankStatisticsByDrwNo(drwNo) {
+    const records = await repository.countPurchaseRanksByDrwNo(drwNo);
+
+    const items = records.map(record => ({
+        drwNo: record.drw_no,
+        resultRank: record.result_rank,
+        count: record.count,
+    }));
+
+    return {
+        result: true,
+        items,
+    }
+}
+
 module.exports = {
-    evaluateRecommendsByDrwNo,
-    evaluatePurchasesByDrwNo,
-    evaluateAllByDrwNo,
+    createEvaluateRecommendsByDrwNo,
+    createEvaluatePurchasesByDrwNo,
+    createEvaluateAllByDrwNo,
+    getRecommendByDrwNo,
+    getRecommendResultRankStatisticsByDrwNo,
+    getPurchaseByDrwNo,
+    getPurchaseResultRankStatisticsByDrwNo
 };

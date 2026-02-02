@@ -7,6 +7,7 @@ var logger = require('morgan');
 var drawRoutes = require('./src/modules/draw/draw.routes')
 var purchaseRoutes = require('./src/modules/purchase/purchase.routes')
 var recommendRoutes = require('./src/modules/recommend/recommend.routes')
+var evaluateRoutes = require('./src/modules/evaluate/evaluate.routes')
 var scheduler = require('./src/scheduler')
 var {AppError} = require('./src/common/errors')
 
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/draw', drawRoutes);
 app.use('/purchase', purchaseRoutes);
 app.use('/recommend', recommendRoutes);
+app.use('/evaluate', evaluateRoutes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -41,7 +43,8 @@ app.use(function (err, req, res, next) {
   // API 요청인 경우 JSON 에러 응답
   if (req.path.startsWith('/recommend') ||
       req.path.startsWith('/draw') ||
-      req.path.startsWith('/purchase')) {
+      req.path.startsWith('/purchase') ||
+      req.path.startsWith('/evaluate')) {
     return res.status(err.status || 500).json({
       result: false,
       code: err.code || 1003,
