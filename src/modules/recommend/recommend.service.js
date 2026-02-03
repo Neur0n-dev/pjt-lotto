@@ -30,18 +30,22 @@ async function createRecommend({
     excludeNumbers = []
 } = {}) {
 
-    const selectStrategy = STRATEGY_MAP[strategy];
-    const ticketCount = Number.isInteger(count) ? count : parseInt(count, 10);
-
     // 타겟 회차 조회
     const targetDrwNo = await drawService.getTargetDrwNo();
 
     // 티켓 생성
     const tickets = [];
-    for (let i = 0; i < ticketCount; i++) {
-        tickets.push(
-            selectStrategy.execute(fixedNumbers, excludeNumbers)
-        );
+    if (strategy === 'all') {
+        const strategyKeys = Object.keys(STRATEGY_MAP);
+        for (const key of strategyKeys) {
+            tickets.push(await STRATEGY_MAP[key].execute(fixedNumbers, excludeNumbers));
+        }
+    } else {
+        const selectStrategy = STRATEGY_MAP[strategy];
+        const ticketCount = Number.isInteger(count) ? count : parseInt(count, 10);
+        for (let i = 0; i < ticketCount; i++) {
+            tickets.push(await selectStrategy.execute(fixedNumbers, excludeNumbers));
+        }
     }
 
     // UUID 생성 nodejs 기본
@@ -50,12 +54,12 @@ async function createRecommend({
     // targetDrwNo가 지정된 경우에만 DB 저장
     if (targetDrwNo > 0) {
         const paramsJson = {
-            count: ticketCount,
+            count: tickets.length,
             fixedNumbers,
             excludeNumbers
         };
 
-        await repository.insertRecommendRun(recommendId, targetDrwNo, selectStrategy.key, paramsJson);
+        await repository.insertRecommendRun(recommendId, targetDrwNo, strategy, paramsJson);
         await repository.insertRecommendNumbers(recommendId, tickets);
     }
 
@@ -63,7 +67,7 @@ async function createRecommend({
         result: true,
         recommendId,
         strategy,
-        count,
+        count: tickets.length,
         targetDrwNo,
         tickets
     };

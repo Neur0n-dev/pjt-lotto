@@ -28,7 +28,7 @@ function getStrategyNames() {
 }
 
 function hasStrategy(strategy) {
-    return Boolean(STRATEGY_MAP[strategy]);
+    return strategy === 'all' || Boolean(STRATEGY_MAP[strategy]);
 }
 
 module.exports = {

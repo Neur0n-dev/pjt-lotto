@@ -35,8 +35,8 @@ function recommendValidatorRequest(body = {}) {
         errors.push(`지원하지 않는 strategy 입니다. => ${strategy}`);
     }
 
-    // count 검증 -> 로또가 몇개의 묶음을 추천 받을지
-    if (count < 1 || count > 5) {
+    // count 검증 -> 로또가 몇개의 묶음을 추천 받을지 (all일 때는 전략 수만큼 자동 결정)
+    if (strategy !== 'all' && (count < 1 || count > 5)) {
         errors.push('count는 1 이상 5 이하만 가능합니다.');
     }
 

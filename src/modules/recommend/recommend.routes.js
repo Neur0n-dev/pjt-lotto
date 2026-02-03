@@ -96,7 +96,7 @@ router.post('/', recommendController.postRecommend);
  *         name: strategy
  *         schema:
  *           type: string
- *           enum: [random, evenOdd, sumRange]
+ *           enum: [random, evenOdd, sumRange, all]
  *         description: 전략 알고리즘으로 필터
  *       - in: query
  *         name: page
