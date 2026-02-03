@@ -18,16 +18,16 @@ const { AppError, errorCodes } = require('../../common/errors');
  * @returns {Promise<object>} 평가 결과 { drwNo, evaluatedCount }
  */
 async function createEvaluateRecommendsByDrwNo(drwNo) {
-    // 1. 당첨번호 존재 확인
-    const drawNumbers = await drawRepository.findDrawNumbers(drwNo);
+    // 1. 당첨번호 존재 확인 + 미평가 추천 매칭 결과 조회 (병렬)
+    const [drawNumbers, matches] = await Promise.all([
+        drawRepository.findDrawNumbers(drwNo),
+        repository.evaluateRecommendMatches(drwNo)
+    ]);
     if (!drawNumbers || drawNumbers.length === 0) {
         throw new AppError(errorCodes.EVALUATE_RECOMMEND_NUMBERS_NOT_FOUND, `${drwNo}회차`);
     }
 
-    // 2. 미평가 추천 매칭 결과 일괄 조회
-    const matches = await repository.evaluateRecommendMatches(drwNo);
-
-    // 3. 각 결과에 등수 판정 후 저장
+    // 2. 각 결과에 등수 판정 후 저장
     for (const row of matches) {
         const resultRank = getRank(row.match_count, row.bonus_match);
         await repository.insertRecommendResult(row.recommend_id, row.set_no, drwNo, row.match_count, row.bonus_match, resultRank);
@@ -42,16 +42,17 @@ async function createEvaluateRecommendsByDrwNo(drwNo) {
  * @returns {Promise<object>} 평가 결과 { drwNo, evaluatedCount }
  */
 async function createEvaluatePurchasesByDrwNo(drwNo) {
-    // 1. 당첨번호 존재 확인
-    const drawNumbers = await drawRepository.findDrawNumbers(drwNo);
+    // 1. 당첨번호 존재 확인 + 미평가 구매 매칭 결과 조회 (병렬)
+    const [drawNumbers, matches] = await Promise.all([
+        drawRepository.findDrawNumbers(drwNo),
+        repository.evaluatePurchaseMatches(drwNo)
+    ]);
+
     if (!drawNumbers || drawNumbers.length === 0) {
         throw new AppError(errorCodes.EVALUATE_PURCHASE_NUMBERS_NOT_FOUND, `${drwNo}회차`);
     }
 
-    // 2. 미평가 구매 매칭 결과 일괄 조회
-    const matches = await repository.evaluatePurchaseMatches(drwNo);
-
-    // 3. 각 결과에 등수 판정 후 저장
+    // 2. 각 결과에 등수 판정 후 저장
     for (const row of matches) {
         const resultRank = getRank(row.match_count, row.bonus_match);
         await repository.insertPurchaseResult(row.purchase_id, drwNo, row.match_count, row.bonus_match, resultRank);
@@ -66,8 +67,10 @@ async function createEvaluatePurchasesByDrwNo(drwNo) {
  * @returns {Promise<object>} 평가 결과 { drwNo, recommend, purchase }
  */
 async function createEvaluateAllByDrwNo(drwNo) {
-    const recommend = await createEvaluateRecommendsByDrwNo(drwNo);
-    const purchase = await createEvaluatePurchasesByDrwNo(drwNo);
+    const [recommend, purchase] = await Promise.all([
+        createEvaluateRecommendsByDrwNo(drwNo),
+        createEvaluatePurchasesByDrwNo(drwNo)
+    ]);
 
     return {
         drwNo,

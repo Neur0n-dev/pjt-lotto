@@ -70,6 +70,7 @@ router.post('/sync/:drwNo', drawController.syncDraw);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
+router.get('/latest', drawController.getLatest);
 
 /**
  * @openapi
@@ -107,6 +108,5 @@ router.post('/sync/:drwNo', drawController.syncDraw);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/:drwNo', drawController.getByDrwNo);
-router.get('/latest', drawController.getLatest);
 
 module.exports = router;

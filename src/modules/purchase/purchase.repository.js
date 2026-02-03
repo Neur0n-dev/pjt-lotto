@@ -95,7 +95,7 @@ async function findPurchaseNumbers(purchaseId) {
  * @param {string} [filters.sourceType] - 구매 타입
  * @returns {Promise<Array>} 구매 목록
  */
-async function findPurchasesListByFilters({targetDrwNo, sourceType} = {}) {
+async function findPurchasesListByFilters({targetDrwNo, sourceType, limit, offset} = {}) {
     const filters = [];
     const params = [];
 
@@ -116,9 +116,12 @@ async function findPurchasesListByFilters({targetDrwNo, sourceType} = {}) {
     const sql = `
         SELECT purchase_id, target_drw_no, purchase_at, source_type, created_date
         FROM t_lotto_purchase
-        ${whereClause}
+            ${whereClause}
         ORDER BY created_date DESC
+            LIMIT ? OFFSET ?
     `;
+
+    params.push(limit, offset);
 
     return db.query(sql, params);
 }

@@ -67,11 +67,13 @@ async function getRecommend(req, res, next) {
 // 추천 목록 조회 GET /recommend
 async function getRecommendList(req, res, next) {
     try {
-        const {targetDrwNo, strategy} = req.query;
+        const {targetDrwNo, strategy, page, pageSize} = req.query;
 
         const result = await getRecommendListByFilters({
             targetDrwNo: targetDrwNo ? parseInt(targetDrwNo, 10) : undefined,
-            algorithm: strategy || undefined
+            algorithm: strategy || undefined,
+            page: page ? parseInt(page, 10) : 1,
+            pageSize: pageSize ? parseInt(pageSize, 10) : 30
         });
 
         return res.json(result);

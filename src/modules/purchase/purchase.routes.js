@@ -90,6 +90,21 @@ router.post('/', purchaseController.postPurchase);
  *           type: string
  *           enum: [MANUAL, RANDOM, RECOMMEND]
  *         description: 구매 출처 타입으로 필터
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: 페이지 번호 (1부터 시작)
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *           minimum: 1
+ *           maximum: 100
+ *         description: 한 페이지당 건수
  *     responses:
  *       200:
  *         description: 구매 목록

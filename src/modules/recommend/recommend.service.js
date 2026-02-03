@@ -75,15 +75,15 @@ async function createRecommend({
  * @returns {Promise<object>} 추천 이력 또는 null
  */
 async function getRecommendById(recommendId) {
-    // 추천 실행 정보 조회
-    const recommendRecord = await repository.findRecommendById(recommendId);
+    // 추천 실행 정보 + 번호 조회 (병렬)
+    const [recommendRecord, numberRecords] = await Promise.all([
+        repository.findRecommendById(recommendId),
+        repository.findRecommendNumbers(recommendId)
+    ]);
 
     if (!recommendRecord) {
         return null;
     }
-
-    // 추천 번호 조회
-    const numberRecords = await repository.findRecommendNumbers(recommendId);
 
     // 번호를 티켓 형태로 변환 (set_no별 그룹핑)
     const ticketsMap = {};
@@ -117,19 +117,16 @@ async function getRecommendById(recommendId) {
  * @param {string} [filters.algorithm] - 알고리즘명 (strategy)
  * @returns {Promise<object>} 추천 목록 및 페이지 정보
  */
-async function getRecommendListByFilters({ targetDrwNo, algorithm} = {}) {
+async function getRecommendListByFilters({ targetDrwNo, algorithm, page = 1, pageSize = 30} = {}) {
+    page = Math.max(1, page);
+    pageSize = Math.min(Math.max(1, pageSize), 100);
+    const offset = (page - 1) * pageSize;
 
-    // 목록 조회
-    const records = await repository.findRecommendListByFilters({
-        targetDrwNo,
-        algorithm
-    });
-
-    // 총 개수 조회
-    const total = await repository.countRecommendListByFilters({
-        targetDrwNo,
-        algorithm
-    });
+    // 목록 조회 + 총 개수 조회 (병렬)
+    const [records, total] = await Promise.all([
+        repository.findRecommendListByFilters({ targetDrwNo, algorithm, limit: pageSize, offset }),
+        repository.countRecommendListByFilters({ targetDrwNo, algorithm })
+    ]);
 
     // 응답 데이터 변환
     const items = records.map(record => ({
@@ -144,7 +141,10 @@ async function getRecommendListByFilters({ targetDrwNo, algorithm} = {}) {
         result: true,
         items,
         pagination: {
-            total
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize)
         }
     };
 }

@@ -14,3 +14,7 @@ CREATE INDEX ix_purchase_number_number
 
 CREATE INDEX ix_recommend_number_number
     ON t_lotto_recommend_number (number);
+
+-- 구매 목록에서 source_type별 필터 조회
+CREATE INDEX ix_purchase_source_type
+    ON t_lotto_purchase (source_type);

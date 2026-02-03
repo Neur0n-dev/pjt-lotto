@@ -78,9 +78,15 @@ async function getPurchaseById(purchaseId) {
  * @param {string} [filters.sourceType] - 구매 출처
  * @returns {Promise<object>} 구매 목록 및 페이지 정보
  */
-async function getPurchaseListByFilters({ targetDrwNo, sourceType } = {}) {
-    const records = await repository.findPurchasesListByFilters({ targetDrwNo, sourceType });
-    const total = await repository.countPurchasesListByFilters({ targetDrwNo, sourceType });
+async function getPurchaseListByFilters({ targetDrwNo, sourceType, page = 1, pageSize = 30 } = {}) {
+    page = Math.max(1, page);
+    pageSize = Math.min(Math.max(1, pageSize), 100);
+    const offset = (page - 1) * pageSize;
+
+    const [records, total] = await Promise.all([
+        repository.findPurchasesListByFilters({ targetDrwNo, sourceType, limit: pageSize, offset }),
+        repository.countPurchasesListByFilters({ targetDrwNo, sourceType })
+    ]);
 
     const items = records.map(record => ({
         purchaseId: record.purchase_id,
@@ -94,7 +100,10 @@ async function getPurchaseListByFilters({ targetDrwNo, sourceType } = {}) {
         result: true,
         items,
         pagination: {
-            total
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize)
         }
     };
 }

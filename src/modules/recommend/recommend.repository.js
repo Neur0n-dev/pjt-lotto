@@ -109,7 +109,7 @@ async function findRecommendNumbers(recommendId) {
  * @param {string} [filters.algorithm] - 알고리즘명
  * @returns {Promise<Array>} 추천 목록
  */
-async function findRecommendListByFilters({targetDrwNo, algorithm} = {}) {
+async function findRecommendListByFilters({targetDrwNo, algorithm, limit, offset} = {}) {
     const filters = [];
     const params = [];
 
@@ -129,10 +129,13 @@ async function findRecommendListByFilters({targetDrwNo, algorithm} = {}) {
 
     const sql = `
         SELECT recommend_id, target_drw_no, algorithm, params_json, created_date
-        FROM t_lotto_recommend_run
-        ${whereClause}
+        FROM t_lotto_recommend_run 
+            ${whereClause}
         ORDER BY created_date DESC
+            LIMIT ? OFFSET ?
     `;
+
+    params.push(limit, offset);
 
     return db.query(sql, params);
 }

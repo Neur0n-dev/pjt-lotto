@@ -98,6 +98,21 @@ router.post('/', recommendController.postRecommend);
  *           type: string
  *           enum: [random, evenOdd, sumRange]
  *         description: 전략 알고리즘으로 필터
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: 페이지 번호 (1부터 시작)
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 30
+ *           minimum: 1
+ *           maximum: 100
+ *         description: 한 페이지당 건수
  *     responses:
  *       200:
  *         description: 추천 목록

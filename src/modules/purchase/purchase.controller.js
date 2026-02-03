@@ -66,11 +66,13 @@ async function getPurchase(req, res, next) {
 // 구매 목록 조회 GET /purchase
 async function getPurchaseList(req, res, next) {
     try {
-        const { targetDrwNo, sourceType } = req.query;
+        const { targetDrwNo, sourceType, page, pageSize } = req.query;
 
         const result = await getPurchaseListByFilters({
             targetDrwNo: targetDrwNo ? parseInt(targetDrwNo, 10) : undefined,
-            sourceType: sourceType || undefined
+            sourceType: sourceType || undefined,
+            page: page ? parseInt(page, 10) : 1,
+            pageSize: pageSize ? parseInt(pageSize, 10) : 30
         });
 
         return res.json(result);
