@@ -155,7 +155,7 @@ async function countPurchasesListByFilters({targetDrwNo, sourceType} = {}) {
     `;
 
     const rows = await db.query(sql, params);
-    return rows[0].total;
+    return Number(rows[0].total);
 }
 
 module.exports = {

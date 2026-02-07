@@ -11,14 +11,14 @@ const mysql = require('mysql2/promise');
 const env = require('./env');
 
 const pool = mysql.createPool({
-  host: env.db.host,
-  port: env.db.port,
-  user: env.db.user,
-  password: env.db.password,
-  database: env.db.database,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+    host: env.db.host,
+    port: env.db.port,
+    user: env.db.user,
+    password: env.db.password,
+    database: env.db.database,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
 });
 
 /**
@@ -28,8 +28,8 @@ const pool = mysql.createPool({
  * @returns {Promise<Array>} 쿼리 결과
  */
 async function query(sql, params = []) {
-  const [rows] = await pool.execute(sql, params);
-  return rows;
+    const [rows] = await pool.query(sql, params);
+    return rows;
 }
 
 /**
@@ -37,7 +37,7 @@ async function query(sql, params = []) {
  * @returns {Promise<PoolConnection>}
  */
 async function getConnection() {
-  return pool.getConnection();
+    return pool.getConnection();
 }
 
 /**
@@ -45,18 +45,18 @@ async function getConnection() {
  * @returns {Promise<boolean>}
  */
 async function testConnection() {
-  try {
-    await pool.execute('SELECT 1');
-    return true;
-  } catch (error) {
-    console.error('DB 연결 실패:', error.message);
-    return false;
-  }
+    try {
+        await pool.execute('SELECT 1');
+        return true;
+    } catch (error) {
+        console.error('DB 연결 실패:', error.message);
+        return false;
+    }
 }
 
 module.exports = {
-  pool,
-  query,
-  getConnection,
-  testConnection,
+    pool,
+    query,
+    getConnection,
+    testConnection,
 };

@@ -103,7 +103,7 @@ async function executePurchase() {
 
         const tickets = [];
         for (let i = 0; i < TICKETS_PER_TICK; i++) {
-            tickets.push(strategy.execute([], []));
+            tickets.push(await strategy.execute([], []));
         }
 
         await purchaseService.createPurchase({
