@@ -68,6 +68,7 @@ lotto/
 │     │  ├─ draw.routes.js
 │     │  ├─ draw.controller.js
 │     │  ├─ draw.service.js
+│     │  ├─ draw.validator.js
 │     │  └─ draw.repository.js
 │     ├─ recommend/         # 추천 모듈
 │     │  ├─ recommend.routes.js
@@ -79,7 +80,9 @@ lotto/
 │     │     ├─ index.js
 │     │     ├─ random.strategy.js
 │     │     ├─ evenOdd.strategy.js
-│     │     └─ sumRange.strategy.js
+│     │     ├─ sumRange.strategy.js
+│     │     ├─ frequency.strategy.js
+│     │     └─ hotCold.strategy.js
 │     ├─ purchase/          # 구매 모듈
 │     │  ├─ purchase.routes.js
 │     │  ├─ purchase.controller.js
@@ -92,7 +95,6 @@ lotto/
 │        ├─ evaluate.service.js
 │        ├─ evaluate.validator.js
 │        └─ evaluate.repository.js
-├─ tests/                   # 테스트 스크립트
 ├─ views/                   # EJS 템플릿
 └─ public/                  # 정적 리소스
 ```
@@ -226,6 +228,9 @@ curl http://localhost:3000/draw/1208
 | `random` | 기본 랜덤 선택 |
 | `evenOdd` | 홀수/짝수 3:3 균형 |
 | `sumRange` | 합계 100-200 범위 필터링 |
+| `frequency` | 최근 50회차 출현 빈도 기반 가중 랜덤 |
+| `hotCold` | 핫(상위 15) 4개 + 콜드(하위 15) 2개 조합 |
+| `all` | 등록된 모든 전략을 1회씩 실행 후 결과 통합 반환 |
 
 ---
 
@@ -303,9 +308,10 @@ npm start
 - [x] Draw: 스케줄러 버그 수정
 - [x] Evaluate: 평가 결과 조회 API (추천/구매 + 등수별 집계)
 - [x] Swagger API 문서화
-- [ ] 새 전략 추가 (frequency, consecutive, hotCold)
+- [x] 새 전략 추가 (frequency, hotCold)
+- [x] strategy `all` 옵션 (모든 전략 한번에 실행)
+- [x] 목록 조회 API 페이징 (recommend, purchase)
 - [ ] 통계 API
-- [ ] 페이징 개선
 - [ ] 테스트 코드
 - [ ] 프론트엔드
 - [ ] 배포 설정
