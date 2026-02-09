@@ -10,7 +10,7 @@ const options = {
         },
         servers: [
             { url: 'http://localhost:3000', description: '로컬 서버' },
-            { url: 'http://211.63.24.118:3000', description: '외부 접속 용(공인 IP)'}
+            { url: 'http://211.63.24.110', description: '외부 접속 용'}
         ],
         tags: [
             { name: 'Draw', description: '회차 정보 조회 및 동기화' },
