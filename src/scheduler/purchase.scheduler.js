@@ -4,17 +4,17 @@
  * 자동 구매 스케줄러
  * 1초마다 실행, tick당 12장 티켓 생성
  * 전략 랜덤 선택, 구매 가능 시간에만 동작
- *
  */
 
 const cron = require('node-cron');
 const purchaseService = require('../modules/purchase/purchase.service');
 const { STRATEGY_MAP, getStrategyNames } = require('../modules/recommend/strategies');
 const drawRepository = require('../modules/draw/draw.repository');
-const { getKstDate, formatDate } = require('../common/utils');
+const { getKstDate, formatDate, getRandomInt } = require('../common/utils');
 
-/** tick당 생성 티켓 수 */
-const TICKETS_PER_TICK = 15;
+/** tick당 생성 티켓 수 범위 */
+const MIN_TICKETS_PER_TICK = 1;
+const MAX_TICKETS_PER_TICK = 5;
 
 /** 동시 실행 방지 플래그 */
 let isRunning = false;
@@ -24,7 +24,6 @@ let cachedDrwNo = null;
 
 /** 캐싱 기준 주차 (일요일 06:00 판단용) */
 let cachedWeekStart = null;
-
 
 /**
  * - 현재 KST 시각이 구매 가능 시간인지 판단
@@ -87,7 +86,8 @@ async function getTargetDrwNoCached() {
  * - 매 초마다 호출되는 핵심 실행 함수
  * - isRunning 가드로 동시 실행 방지
  * - 구매 불가 시간이면 skip
- * - 전략 랜덤 선택 후 12장 생성 → DB 저장
+ * - 1~5장 랜덤 생성, 티켓마다 전략 개별 랜덤 선택
+ * - 전략별로 그룹핑하여 sourceType에 전략명 저장
  */
 async function executePurchase() {
     if (isRunning) return;
@@ -98,19 +98,26 @@ async function executePurchase() {
     try {
         const targetDrwNo = await getTargetDrwNoCached();
         const strategyNames = getStrategyNames();
-        const selectedName = strategyNames[Math.floor(Math.random() * strategyNames.length)];
-        const strategy = STRATEGY_MAP[selectedName];
+        const ticketCount = getRandomInt(MIN_TICKETS_PER_TICK, MAX_TICKETS_PER_TICK);
 
-        const tickets = [];
-        for (let i = 0; i < TICKETS_PER_TICK; i++) {
-            tickets.push(await strategy.execute([], []));
+        // 티켓별 전략 랜덤 선택 후 전략별 그룹핑
+        const ticketsByStrategy = {};
+        for (let i = 0; i < ticketCount; i++) {
+            const selectedName = strategyNames[Math.floor(Math.random() * strategyNames.length)];
+            const strategy = STRATEGY_MAP[selectedName];
+            const ticket = await strategy.execute([], []);
+            if (!ticketsByStrategy[selectedName]) ticketsByStrategy[selectedName] = [];
+            ticketsByStrategy[selectedName].push(ticket);
         }
 
-        await purchaseService.createPurchase({
-            targetDrwNo,
-            sourceType: 'RANDOM',
-            tickets
-        });
+        // 전략별로 구매 생성
+        for (const [strategyName, tickets] of Object.entries(ticketsByStrategy)) {
+            await purchaseService.createPurchase({
+                targetDrwNo,
+                sourceType: strategyName,
+                tickets
+            });
+        }
     } catch (err) {
         console.error('[Purchase Scheduler] 구매 실행 실패:', err.message);
     } finally {
