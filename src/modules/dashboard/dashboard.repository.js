@@ -4,7 +4,6 @@
  * 대시보드 집계 데이터 조회 전담
  * DB 조회 등 데이터 접근 로직만 담당
  * 비즈니스 로직이나 HTTP 처리 로직은 포함하지 않음
- *
  */
 
 const db = require('../../config/db');
@@ -85,20 +84,23 @@ async function countTotalRecommendResults() {
 }
 
 /**
- * 번호별 구매 빈도 TOP N
+ * 특정 회차 번호별 구매 빈도 TOP N
+ * @param {number} drwNo - 대상 회차
  * @param {number} limit - 조회 개수 (기본 10)
  * @returns {Promise<Array>} [{ number, count }, ...]
  */
-async function findTopPurchasedNumbers(limit = 10) {
+async function findTopPurchasedNumbersByDrwNo(drwNo, limit = 10) {
     const sql = `
-        SELECT number, COUNT(*) AS count
-        FROM t_lotto_purchase_number
-        GROUP BY number
+        SELECT pn.number, COUNT(*) AS count
+        FROM t_lotto_purchase_number pn
+        JOIN t_lotto_purchase p ON p.purchase_id = pn.purchase_id
+        WHERE p.target_drw_no = ?
+        GROUP BY pn.number
         ORDER BY count DESC
-            LIMIT ?
+        LIMIT ?
     `;
 
-    return db.query(sql, [limit]);
+    return db.query(sql, [drwNo, limit]);
 }
 
 /**
@@ -234,25 +236,46 @@ async function findRecommendTrendByRecentDraws(limit = 10) {
 }
 
 /**
- * 최근 N회차 당첨번호 (pos 1~7, 7=보너스)
- * @param {number} limit - 조회 회차 수 (기본 3)
- * @returns {Promise<Array>} [{ drw_no, drw_date, pos, number }, ...]
+ * 특정 회차 최근 구매 N건 (시간 + 번호)
+ * @param {number} drwNo - 대상 회차
+ * @param {number} limit - 조회 개수 (기본 3)
+ * @returns {Promise<Array>} [{ purchase_id, purchase_at, numbers }, ...]
  */
-async function findRecentDrawNumbers(limit = 3) {
+async function findRecentPurchases(drwNo, limit = 3) {
     const sql = `
-        SELECT d.drw_no, d.drw_date, dn.pos, dn.number
-        FROM t_lotto_draw d
-                 JOIN t_lotto_draw_number dn ON dn.drw_no = d.drw_no
-        WHERE d.drw_no IN (
-            SELECT d2.drw_no
-            FROM t_lotto_draw d2
-            WHERE EXISTS (SELECT 1 FROM t_lotto_draw_number dn2 WHERE dn2.drw_no = d2.drw_no)
-            ORDER BY d2.drw_no DESC LIMIT ?
-        )
-        ORDER BY d.drw_no DESC, dn.pos ASC
+        SELECT p.purchase_id, p.purchase_at,
+               GROUP_CONCAT(pn.number ORDER BY pn.pos ASC) AS numbers
+        FROM t_lotto_purchase p
+        JOIN t_lotto_purchase_number pn ON pn.purchase_id = p.purchase_id
+        WHERE p.target_drw_no = ?
+        GROUP BY p.purchase_id, p.purchase_at
+        ORDER BY p.purchase_at DESC
+        LIMIT ?
     `;
 
-    return db.query(sql, [limit]);
+    return db.query(sql, [drwNo, limit]);
+}
+
+/**
+ * 특정 회차 최근 추천 N건 (시간 + 번호)
+ * @param {number} drwNo - 대상 회차
+ * @param {number} limit - 조회 개수 (기본 3)
+ * @returns {Promise<Array>} [{ recommend_id, created_date, numbers }, ...]
+ */
+async function findRecentRecommends(drwNo, limit = 3) {
+    const sql = `
+        SELECT rr.recommend_id, rr.created_date,
+               GROUP_CONCAT(rn.number ORDER BY rn.pos ASC) AS numbers
+        FROM t_lotto_recommend_run rr
+        JOIN t_lotto_recommend_number rn ON rn.recommend_id = rr.recommend_id
+        WHERE rr.target_drw_no = ?
+          AND rn.set_no = 1
+        GROUP BY rr.recommend_id, rr.created_date
+        ORDER BY rr.created_date DESC
+        LIMIT ?
+    `;
+
+    return db.query(sql, [drwNo, limit]);
 }
 
 module.exports = {
@@ -261,12 +284,13 @@ module.exports = {
     countTotalWins,
     countTotalPurchaseResults,
     countTotalRecommendResults,
-    findTopPurchasedNumbers,
+    findTopPurchasedNumbersByDrwNo,
     countPurchasesByTargetDrwNo,
     countRecommendsByTargetDrwNo,
     countCumulativeRankDistribution,
     countRecommendsByAlgorithm,
     findPurchaseTrendByRecentDraws,
     findRecommendTrendByRecentDraws,
-    findRecentDrawNumbers,
+    findRecentPurchases,
+    findRecentRecommends,
 };
