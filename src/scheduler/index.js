@@ -7,6 +7,7 @@
 
 const drawScheduler = require('./draw.scheduler');
 const purchaseScheduler = require('./purchase.scheduler');
+const recommendScheduler = require('./recommend.scheduler');
 
 /**
  * 모든 스케줄러 시작
@@ -16,6 +17,7 @@ function startAll() {
 
     drawScheduler.start();
     purchaseScheduler.start();
+    recommendScheduler.start();
 
     console.log('[Scheduler] 모든 스케줄러 초기화 완료');
 }
@@ -24,4 +26,5 @@ module.exports = {
     startAll,
     drawScheduler,  // 개별 접근용
     purchaseScheduler,
+    recommendScheduler,
 };

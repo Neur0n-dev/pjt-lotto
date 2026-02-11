@@ -122,6 +122,27 @@ async function findLatestSyncedDraw() {
     return rows.length > 0 ? rows[0] : null;
 }
 
+/**
+ * 최근 N회차 번호별 출현 빈도 조회
+ * @param {number} rounds - 조회 회차 수
+ * @returns {Promise<Array<{number: number, cnt: number}>>} 번호별 출현 횟수 (cnt 오름차순)
+ */
+async function findNumberFrequency(rounds = 20) {
+    const sql = `
+        SELECT dn.number, COUNT(*) AS cnt
+        FROM t_lotto_draw_number dn
+        INNER JOIN (
+            SELECT drw_no FROM t_lotto_draw d
+            WHERE EXISTS (SELECT 1 FROM t_lotto_draw_number dn2 WHERE dn2.drw_no = d.drw_no)
+            ORDER BY drw_no DESC LIMIT ?
+        ) d ON dn.drw_no = d.drw_no
+        WHERE dn.pos BETWEEN 1 AND 6
+        GROUP BY dn.number
+        ORDER BY cnt
+    `;
+    return db.query(sql, [rounds]);
+}
+
 module.exports = {
     insertDraw,
     insertDrawNumbers,
@@ -129,4 +150,5 @@ module.exports = {
     findLatestSyncedDraw,
     findDrawByNo,
     findDrawNumbers,
+    findNumberFrequency,
 };
