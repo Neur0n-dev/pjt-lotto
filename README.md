@@ -15,6 +15,7 @@
 - 추천 이력 DB 저장
 - 동행복권 당첨번호 자동 동기화
 - 자동 구매 스케줄러 (매 1초, tick당 1~5장 랜덤, 티켓별 전략 개별 선택)
+- 자동 추천 스케줄러 (매 20분, tick당 1~5개 랜덤, 모드별 fixed/exclude 자동 산출)
 - 추천/구매 결과 당첨 평가
 
 ---
@@ -61,8 +62,9 @@ lotto/
 │  │  └─ lotto-api.client.js  # 동행복권 API 클라이언트
 │  ├─ scheduler/
 │  │  ├─ index.js              # 스케줄러 초기화
-│  │  ├─ draw.scheduler.js     # 회차 동기화 + 평가 스케줄러
-│  │  └─ purchase.scheduler.js # 자동 구매 스케줄러
+│  │  ├─ draw.scheduler.js        # 회차 동기화 + 평가 스케줄러
+│  │  ├─ purchase.scheduler.js    # 자동 구매 스케줄러
+│  │  └─ recommend.scheduler.js   # 자동 추천 스케줄러
 │  └─ modules/
 │     ├─ draw/              # 회차 모듈
 │     │  ├─ draw.routes.js
@@ -267,10 +269,23 @@ npm start
 |----------|------|------|
 | 회차 동기화 | 매주 토요일 21:20 KST | 동행복권 API에서 최신 당첨번호 수집 + 평가 실행 |
 | 자동 구매 | 매 1초 | tick당 1~5장 랜덤 생성, 티켓마다 전략 개별 랜덤 선택, sourceType에 전략명 저장 |
+| 자동 추천 | 매 20분 | tick당 1~5개 랜덤 생성, 모드별 fixedNumbers/excludeNumbers 자동 산출 |
 
 **구매 가능 시간 (KST):**
 - 일~금: 06:00 ~ 24:00
 - 토: 06:00 ~ 20:00
+
+**추천 가능 시간 (KST):**
+- 일요일 06:00 ~ 토요일 20:00
+
+## 추천 모드
+| 모드 | fixedNumbers | excludeNumbers | 설명 |
+|------|-------------|---------------|------|
+| `none` | `[]` | `[]` | 제약 없음 |
+| `repeat` | 직전 당첨 1~2개 | `[]` | 연속 출현 기대 |
+| `fresh` | `[]` | 직전 당첨 6개 | 신선한 번호 |
+| `dormant` | 미출현 1~2개 | `[]` | 가뭄 해소 |
+| `mixed` | 미출현 1개 | 과다출현 2~3개 | 혼합 |
 
 ---
 
@@ -311,6 +326,7 @@ npm start
 - [x] 새 전략 추가 (frequency, hotCold)
 - [x] strategy `all` 옵션 (모든 전략 한번에 실행)
 - [x] 목록 조회 API 페이징 (recommend, purchase)
+- [x] Recommend: 자동 추천 스케줄러 (매 20분, 모드 시스템)
 - [ ] 통계 API
 - [ ] 테스트 코드
 - [ ] 프론트엔드
