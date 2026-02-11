@@ -10,6 +10,7 @@ var drawRoutes = require('./src/modules/draw/draw.routes')
 var purchaseRoutes = require('./src/modules/purchase/purchase.routes')
 var recommendRoutes = require('./src/modules/recommend/recommend.routes')
 var evaluateRoutes = require('./src/modules/evaluate/evaluate.routes')
+var dashboardRoutes = require('./src/modules/dashboard/dashboard.routes')
 var scheduler = require('./src/scheduler')
 var {AppError} = require('./src/common/errors')
 
@@ -36,6 +37,7 @@ app.use(logger(function (tokens, req, res) {
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -43,6 +45,7 @@ app.use('/draw', drawRoutes);
 app.use('/purchase', purchaseRoutes);
 app.use('/recommend', recommendRoutes);
 app.use('/evaluate', evaluateRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -60,7 +63,8 @@ app.use(function (err, req, res, next) {
   if (req.path.startsWith('/recommend') ||
       req.path.startsWith('/draw') ||
       req.path.startsWith('/purchase') ||
-      req.path.startsWith('/evaluate')) {
+      req.path.startsWith('/evaluate') ||
+      req.path.startsWith('/dashboard/api')) {
     return res.status(err.status || 500).json({
       result: false,
       code: err.code || 1003,

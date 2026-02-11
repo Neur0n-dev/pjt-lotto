@@ -86,18 +86,21 @@ async function countTotalRecommendResults() {
 /**
  * 특정 회차 번호별 구매 빈도 TOP N
  * @param {number} drwNo - 대상 회차
- * @param {number} limit - 조회 개수 (기본 10)
+ * @param {number} limit - 조회 개수 (기본 7)
  * @returns {Promise<Array>} [{ number, count }, ...]
  */
-async function findTopPurchasedNumbersByDrwNo(drwNo, limit = 10) {
+async function findTopPurchasedNumbersByDrwNo(drwNo, limit = 7) {
     const sql = `
         SELECT pn.number, COUNT(*) AS count
-        FROM t_lotto_purchase_number pn
-        JOIN t_lotto_purchase p ON p.purchase_id = pn.purchase_id
-        WHERE p.target_drw_no = ?
+        FROM (
+            SELECT purchase_id
+            FROM t_lotto_purchase
+            WHERE target_drw_no = ?
+            ) p
+        JOIN t_lotto_purchase_number pn ON pn.purchase_id = p.purchase_id
         GROUP BY pn.number
         ORDER BY count DESC
-        LIMIT ?
+            LIMIT ?
     `;
 
     return db.query(sql, [drwNo, limit]);
@@ -185,6 +188,23 @@ async function countRecommendsByAlgorithm() {
     `;
 
     return db.query(sql);
+}
+
+/**
+ * 특정 회차 구매 유형(source_type)별 건수
+ * @param {number} drwNo - 대상 회차
+ * @returns {Promise<Array>} [{ source_type, count }, ...]
+ */
+async function countPurchasesBySourceType(drwNo) {
+    const sql = `
+        SELECT source_type, COUNT(*) AS count
+        FROM t_lotto_purchase
+        WHERE target_drw_no = ?
+        GROUP BY source_type
+        ORDER BY count DESC
+    `;
+
+    return db.query(sql, [drwNo]);
 }
 
 /**
@@ -289,6 +309,7 @@ module.exports = {
     countRecommendsByTargetDrwNo,
     countCumulativeRankDistribution,
     countRecommendsByAlgorithm,
+    countPurchasesBySourceType,
     findPurchaseTrendByRecentDraws,
     findRecommendTrendByRecentDraws,
     findRecentPurchases,
