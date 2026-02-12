@@ -30,6 +30,10 @@
 - MySQL (mysql2/promise)
 - Repository 패턴 적용
 
+### 프론트엔드
+- EJS 템플릿 엔진
+- Chart.js (대시보드 차트)
+
 ### 기타
 - dotenv 환경 변수 관리
 - 동행복권 API 연동
@@ -91,14 +95,23 @@ lotto/
 │     │  ├─ purchase.service.js
 │     │  ├─ purchase.validator.js
 │     │  └─ purchase.repository.js
-│     └─ evaluate/          # 평가 모듈
-│        ├─ evaluate.routes.js
-│        ├─ evaluate.controller.js
-│        ├─ evaluate.service.js
-│        ├─ evaluate.validator.js
-│        └─ evaluate.repository.js
-├─ views/                   # EJS 템플릿
-└─ public/                  # 정적 리소스
+│     ├─ evaluate/          # 평가 모듈
+│     │  ├─ evaluate.routes.js
+│     │  ├─ evaluate.controller.js
+│     │  ├─ evaluate.service.js
+│     │  ├─ evaluate.validator.js
+│     │  └─ evaluate.repository.js
+│     └─ dashboard/         # 대시보드 모듈
+│        ├─ dashboard.routes.js
+│        ├─ dashboard.controller.js
+│        ├─ dashboard.service.js
+│        └─ dashboard.repository.js
+├─ views/
+│  ├─ dashboard.ejs         # 대시보드 EJS 템플릿
+│  └─ error.ejs             # 에러 페이지
+└─ public/
+   ├─ css/dashboard.css     # 대시보드 스타일
+   └─ js/dashboard.js       # 대시보드 프론트엔드
 ```
 
 ---
@@ -135,6 +148,17 @@ lotto/
 |--------|-----|------|
 | GET | `/evaluate/recommend/:drwNo` | 추천 평가 결과 + 등수별 집계 조회 |
 | GET | `/evaluate/purchase/:drwNo` | 구매 평가 결과 + 등수별 집계 조회 |
+
+### Dashboard API
+
+| Method | URL | 설명 |
+|--------|-----|------|
+| GET | `/dashboard` | 대시보드 페이지 (최신 회차) |
+| GET | `/dashboard/:drwNo` | 대시보드 페이지 (특정 회차) |
+| GET | `/dashboard/api/summary/row1` | 1행 요약 카드 데이터 (60초 폴링) |
+| GET | `/dashboard/api/summary/row2` | 2행 구매/추천 비율 차트 (60초 폴링) |
+| GET | `/dashboard/api/summary/row3` | 3행 빈도/추이/등수 차트 (60초 폴링) |
+| GET | `/dashboard/api/realtime` | 실시간 카운터 (5초 폴링) |
 
 ---
 
@@ -327,7 +351,8 @@ npm start
 - [x] strategy `all` 옵션 (모든 전략 한번에 실행)
 - [x] 목록 조회 API 페이징 (recommend, purchase)
 - [x] Recommend: 자동 추천 스케줄러 (매 20분, 모드 시스템)
+- [x] Dashboard: 대시보드 (EJS + Chart.js, 행별 API 분리)
+- [ ] 코드 정리 (미사용 유틸/에러코드/파일/미들웨어 제거)
 - [ ] 통계 API
 - [ ] 테스트 코드
-- [ ] 프론트엔드
 - [ ] 배포 설정
