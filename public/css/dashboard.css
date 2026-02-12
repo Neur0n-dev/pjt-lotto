@@ -16,6 +16,7 @@ body {
 
 /* ===== Header: 회차 이동 ===== */
 .header {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -55,6 +56,34 @@ body {
 .btn-nav:disabled {
     opacity: 0.35;
     cursor: not-allowed;
+}
+
+.btn-pick {
+    position: absolute;
+    right: 24px;
+    padding: 12px 24px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4a8fe7, #3567b2);
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 3px 10px rgba(63, 120, 200, 0.3);
+}
+
+.btn-pick:hover {
+    background: linear-gradient(135deg, #5a9ff5, #4a8fe7);
+    box-shadow: 0 5px 16px rgba(63, 120, 200, 0.45);
+    transform: translateY(-1px);
+}
+
+.btn-pick:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(63, 120, 200, 0.3);
 }
 
 /* ===== Row 공통 ===== */

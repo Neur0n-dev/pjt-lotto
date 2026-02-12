@@ -47,6 +47,9 @@ app.use('/recommend', recommendRoutes);
 app.use('/evaluate', evaluateRoutes);
 app.use('/dashboard', dashboardRoutes);
 
+// 번호추천 페이지
+app.get('/pick', (req, res) => res.render('pick'));
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
