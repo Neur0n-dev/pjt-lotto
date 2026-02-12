@@ -8,7 +8,6 @@
 
 const repository = require('./dashboard.repository');
 const drawRepository = require('../draw/draw.repository');
-const { formatDateTime } = require('../../common/utils');
 
 /**
  * 대시보드 대상 회차 결정
@@ -24,11 +23,11 @@ async function findTargetDrwNo(drwNo) {
 }
 
 /**
- * 대시보드 전체 요약 데이터 조회 (60초 폴링용)
+ * 1행 요약 카드 데이터 조회
  * @param {number|undefined} drwNo - 대상 회차 (없으면 최신)
- * @returns {Promise<object>} 대시보드 전체 데이터
+ * @returns {Promise<object>} drwNo, latestDrwNo, summary
  */
-async function getDashboardSummary(drwNo) {
+async function getSummaryRow1(drwNo) {
     const latestDraw = await drawRepository.findLatestDraw();
     const latestDrwNo = latestDraw ? latestDraw.drw_no : 1;
     const targetDrwNo = drwNo || latestDrwNo;
@@ -39,30 +38,12 @@ async function getDashboardSummary(drwNo) {
         totalWins,
         totalPurchaseResults,
         totalRecommendResults,
-        topPurchasedNumbers,
-    //     recentPurchases,
-    //     recentRecommends,
-        purchaseCount,
-        recommendCount,
-        purchaseSourceRatio,
-    //     purchaseTrend,
-    //     recommendTrend,
-    //     cumulativeRankDistribution,
     ] = await Promise.all([
         repository.countTotalPurchases(),
         repository.countTotalRecommends(),
         repository.countTotalWins(),
         repository.countTotalPurchaseResults(),
         repository.countTotalRecommendResults(),
-        repository.findTopPurchasedNumbersByDrwNo(targetDrwNo, 7),
-    //     repository.findRecentPurchases(targetDrwNo, 3),
-    //     repository.findRecentRecommends(targetDrwNo, 3),
-        repository.countPurchasesByTargetDrwNo(targetDrwNo),
-        repository.countRecommendsByTargetDrwNo(targetDrwNo),
-        repository.countPurchasesBySourceType(targetDrwNo),
-    //     repository.findPurchaseTrendByRecentDraws(10),
-    //     repository.findRecommendTrendByRecentDraws(10),
-    //     repository.countCumulativeRankDistribution(),
     ]);
 
     const totalEvaluated = totalPurchaseResults + totalRecommendResults;
@@ -79,48 +60,86 @@ async function getDashboardSummary(drwNo) {
             totalRecommends,
             totalWins,
             winRate,
-        //     totalEvaluated,
         },
-        topPurchasedNumbers: topPurchasedNumbers.map(row => ({
-            number: row.number,
-            count: row.count,
-        })),
-        // recentPurchases: recentPurchases.map(row => ({
-        //     purchaseAt: formatDateTime(row.purchase_at),
-        //     numbers: row.numbers.split(',').map(Number),
-        // })),
-        // recentRecommends: recentRecommends.map(row => ({
-        //     createdDate: formatDateTime(row.created_date),
-        //     numbers: row.numbers.split(',').map(Number),
-        // })),
-        realtimeCounters: {
-            drwNo: targetDrwNo,
-            purchaseCount,
-            recommendCount,
-        },
+    };
+}
+
+/**
+ * 2행 차트 데이터 조회 (구매 유형 비율, 추천 전략 비율)
+ * @param {number|undefined} drwNo - 대상 회차 (없으면 최신)
+ * @returns {Promise<object>} purchaseSourceRatio, recommendAlgorithmRatio
+ */
+async function getSummaryRow2(drwNo) {
+    const targetDrwNo = await findTargetDrwNo(drwNo);
+
+    const [
+        purchaseSourceRatio,
+        recommendAlgorithmRatio,
+    ] = await Promise.all([
+        repository.countPurchasesBySourceType(targetDrwNo),
+        repository.countRecommendsByAlgorithmAndDrwNo(targetDrwNo),
+    ]);
+
+    return {
+        result: true,
+        drwNo: targetDrwNo,
         purchaseSourceRatio: purchaseSourceRatio.map(row => ({
             sourceType: row.source_type,
             count: row.count,
         })),
-        // purchaseTrend: purchaseTrend.map(row => ({
-        //     drwNo: row.drw_no,
-        //     count: row.count,
-        // })),
-        // recommendTrend: recommendTrend.map(row => ({
-        //     drwNo: row.drw_no,
-        //     count: row.count,
-        // })),
-        // cumulativeRankDistribution: cumulativeRankDistribution.map(row => ({
-        //     resultRank: row.result_rank,
-        //     count: row.count,
-        // })),
+        recommendAlgorithmRatio: recommendAlgorithmRatio.map(row => ({
+            algorithm: row.algorithm,
+            count: row.count,
+        })),
+    };
+}
+
+/**
+ * 3행 차트 데이터 조회 (구매빈도 TOP7, 추이, 등수 분포)
+ * @param {number|undefined} drwNo - 대상 회차 (없으면 최신)
+ * @returns {Promise<object>} topPurchasedNumbers, trends, rankDistribution
+ */
+async function getSummaryRow3(drwNo) {
+    const targetDrwNo = await findTargetDrwNo(drwNo);
+
+    const [
+        topPurchasedNumbers,
+        purchaseTrend,
+        recommendTrend,
+        cumulativeRankDistribution,
+    ] = await Promise.all([
+        repository.findTopPurchasedNumbersByDrwNo(targetDrwNo, 7),
+        repository.findPurchaseTrendByRecentDraws(targetDrwNo),
+        repository.findRecommendTrendByRecentDraws(targetDrwNo),
+        repository.countCumulativeRankDistribution(),
+    ]);
+
+    return {
+        result: true,
+        drwNo: targetDrwNo,
+        topPurchasedNumbers: topPurchasedNumbers.map(row => ({
+            number: row.number,
+            count: row.count,
+        })),
+        purchaseTrend: purchaseTrend.map(row => ({
+            drwNo: row.drw_no,
+            count: row.count,
+        })),
+        recommendTrend: recommendTrend.map(row => ({
+            drwNo: row.drw_no,
+            count: row.count,
+        })),
+        cumulativeRankDistribution: cumulativeRankDistribution.map(row => ({
+            resultRank: row.result_rank,
+            count: row.count,
+        })),
     };
 }
 
 /**
  * 실시간 데이터 조회 (5초 폴링용, 경량)
  * @param {number|undefined} drwNo - 대상 회차 (없으면 최신)
- * @returns {Promise<object>} 실시간 카운터 + 최근 3건
+ * @returns {Promise<object>} 실시간 카운터
  */
 async function getRealtimeCounters(drwNo) {
     const targetDrwNo = await findTargetDrwNo(drwNo);
@@ -128,13 +147,9 @@ async function getRealtimeCounters(drwNo) {
     const [
         purchaseCount,
         recommendCount,
-        // recentPurchases,
-        // recentRecommends,
     ] = await Promise.all([
         repository.countPurchasesByTargetDrwNo(targetDrwNo),
         repository.countRecommendsByTargetDrwNo(targetDrwNo),
-        // repository.findRecentPurchases(targetDrwNo, 3),
-        // repository.findRecentRecommends(targetDrwNo, 3),
     ]);
 
     return {
@@ -142,18 +157,12 @@ async function getRealtimeCounters(drwNo) {
         drwNo: targetDrwNo,
         purchaseCount,
         recommendCount,
-        // recentPurchases: recentPurchases.map(row => ({
-        //     purchaseAt: formatDateTime(row.purchase_at),
-        //     numbers: row.numbers.split(',').map(Number),
-        // })),
-        // recentRecommends: recentRecommends.map(row => ({
-        //     createdDate: formatDateTime(row.created_date),
-        //     numbers: row.numbers.split(',').map(Number),
-        // })),
     };
 }
 
 module.exports = {
-    getDashboardSummary,
+    getSummaryRow1,
+    getSummaryRow2,
+    getSummaryRow3,
     getRealtimeCounters,
 };

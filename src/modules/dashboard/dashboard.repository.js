@@ -97,7 +97,7 @@ async function findTopPurchasedNumbersByDrwNo(drwNo, limit = 7) {
             FROM t_lotto_purchase
             WHERE target_drw_no = ?
             ) p
-        JOIN t_lotto_purchase_number pn ON pn.purchase_id = p.purchase_id
+            JOIN t_lotto_purchase_number pn ON pn.purchase_id = p.purchase_id
         GROUP BY pn.number
         ORDER BY count DESC
             LIMIT ?
@@ -159,16 +159,16 @@ async function countCumulativeRankDistribution() {
             r.result_rank,
             IFNULL(p.cnt, 0) + IFNULL(rc.cnt, 0) AS count
         FROM rank_list r
-        LEFT JOIN (
+            LEFT JOIN (
             SELECT result_rank, COUNT(*) AS cnt
             FROM t_lotto_purchase_result
             GROUP BY result_rank
-        ) p ON r.result_rank = p.result_rank
-        LEFT JOIN (
+            ) p ON r.result_rank = p.result_rank
+            LEFT JOIN (
             SELECT result_rank, COUNT(*) AS cnt
             FROM t_lotto_recommend_result
             GROUP BY result_rank
-        ) rc ON r.result_rank = rc.result_rank
+            ) rc ON r.result_rank = rc.result_rank
         ORDER BY FIELD(r.result_rank, 1, 2, 3, 4, 5, 0)
     `;
 
@@ -176,18 +176,20 @@ async function countCumulativeRankDistribution() {
 }
 
 /**
- * 전략(algorithm)별 추천 건수
+ * 특정 회차 전략(algorithm)별 추천 건수
+ * @param {number} drwNo - 대상 회차
  * @returns {Promise<Array>} [{ algorithm, count }, ...]
  */
-async function countRecommendsByAlgorithm() {
+async function countRecommendsByAlgorithmAndDrwNo(drwNo) {
     const sql = `
         SELECT algorithm, COUNT(*) AS count
         FROM t_lotto_recommend_run
+        WHERE target_drw_no = ?
         GROUP BY algorithm
         ORDER BY count DESC
     `;
 
-    return db.query(sql);
+    return db.query(sql, [drwNo]);
 }
 
 /**
@@ -208,94 +210,55 @@ async function countPurchasesBySourceType(drwNo) {
 }
 
 /**
- * 최근 N회차 구매 추이
- * @param {number} limit - 조회 회차 수 (기본 10)
+ * 최근 7회차 구매 추이 (기준 회차부터 역순 7개)
+ * @param {number} drwNo - 기준 회차
  * @returns {Promise<Array>} [{ drw_no, count }, ...]
  */
-async function findPurchaseTrendByRecentDraws(limit = 10) {
+async function findPurchaseTrendByRecentDraws(drwNo) {
     const sql = `
-        SELECT d.drw_no, IFNULL(p.cnt, 0) AS count
-        FROM (
-            SELECT drw_no FROM t_lotto_draw d
-            WHERE EXISTS (SELECT 1 FROM t_lotto_draw_number dn WHERE dn.drw_no = d.drw_no)
-            ORDER BY drw_no DESC LIMIT ?
-        ) d
-        LEFT JOIN (
+        SELECT (drw.base - n.offset) AS drw_no, IFNULL(p.cnt, 0) AS count
+        FROM (SELECT ? AS base) drw
+            CROSS JOIN (
+            SELECT 0 AS offset UNION ALL SELECT 1 UNION ALL SELECT 2
+            UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
+            UNION ALL SELECT 6
+            ) n
+            LEFT JOIN (
             SELECT target_drw_no, COUNT(*) AS cnt
             FROM t_lotto_purchase
             GROUP BY target_drw_no
-        ) p ON d.drw_no = p.target_drw_no
-        ORDER BY d.drw_no ASC
+            ) p ON (drw.base - n.offset) = p.target_drw_no
+        WHERE (drw.base - n.offset) > 0
+        ORDER BY drw_no ASC
     `;
 
-    return db.query(sql, [limit]);
+    return db.query(sql, [drwNo]);
 }
 
 /**
- * 최근 N회차 추천 추이
- * @param {number} limit - 조회 회차 수 (기본 10)
+ * 최근 7회차 추천 추이 (기준 회차부터 역순 7개)
+ * @param {number} drwNo - 기준 회차
  * @returns {Promise<Array>} [{ drw_no, count }, ...]
  */
-async function findRecommendTrendByRecentDraws(limit = 10) {
+async function findRecommendTrendByRecentDraws(drwNo) {
     const sql = `
-        SELECT d.drw_no, IFNULL(r.cnt, 0) AS count
-        FROM (
-            SELECT drw_no FROM t_lotto_draw d
-            WHERE EXISTS (SELECT 1 FROM t_lotto_draw_number dn WHERE dn.drw_no = d.drw_no)
-            ORDER BY drw_no DESC LIMIT ?
-        ) d
-        LEFT JOIN (
+        SELECT (drw.base - n.offset) AS drw_no, IFNULL(r.cnt, 0) AS count
+        FROM (SELECT ? AS base) drw
+            CROSS JOIN (
+            SELECT 0 AS offset UNION ALL SELECT 1 UNION ALL SELECT 2
+            UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
+            UNION ALL SELECT 6
+            ) n
+            LEFT JOIN (
             SELECT target_drw_no, COUNT(*) AS cnt
             FROM t_lotto_recommend_run
             GROUP BY target_drw_no
-        ) r ON d.drw_no = r.target_drw_no
-        ORDER BY d.drw_no ASC
+            ) r ON (drw.base - n.offset) = r.target_drw_no
+        WHERE (drw.base - n.offset) > 0
+        ORDER BY drw_no ASC
     `;
 
-    return db.query(sql, [limit]);
-}
-
-/**
- * 특정 회차 최근 구매 N건 (시간 + 번호)
- * @param {number} drwNo - 대상 회차
- * @param {number} limit - 조회 개수 (기본 3)
- * @returns {Promise<Array>} [{ purchase_id, purchase_at, numbers }, ...]
- */
-async function findRecentPurchases(drwNo, limit = 3) {
-    const sql = `
-        SELECT p.purchase_id, p.purchase_at,
-               GROUP_CONCAT(pn.number ORDER BY pn.pos ASC) AS numbers
-        FROM t_lotto_purchase p
-        JOIN t_lotto_purchase_number pn ON pn.purchase_id = p.purchase_id
-        WHERE p.target_drw_no = ?
-        GROUP BY p.purchase_id, p.purchase_at
-        ORDER BY p.purchase_at DESC
-        LIMIT ?
-    `;
-
-    return db.query(sql, [drwNo, limit]);
-}
-
-/**
- * 특정 회차 최근 추천 N건 (시간 + 번호)
- * @param {number} drwNo - 대상 회차
- * @param {number} limit - 조회 개수 (기본 3)
- * @returns {Promise<Array>} [{ recommend_id, created_date, numbers }, ...]
- */
-async function findRecentRecommends(drwNo, limit = 3) {
-    const sql = `
-        SELECT rr.recommend_id, rr.created_date,
-               GROUP_CONCAT(rn.number ORDER BY rn.pos ASC) AS numbers
-        FROM t_lotto_recommend_run rr
-        JOIN t_lotto_recommend_number rn ON rn.recommend_id = rr.recommend_id
-        WHERE rr.target_drw_no = ?
-          AND rn.set_no = 1
-        GROUP BY rr.recommend_id, rr.created_date
-        ORDER BY rr.created_date DESC
-        LIMIT ?
-    `;
-
-    return db.query(sql, [drwNo, limit]);
+    return db.query(sql, [drwNo]);
 }
 
 module.exports = {
@@ -308,10 +271,8 @@ module.exports = {
     countPurchasesByTargetDrwNo,
     countRecommendsByTargetDrwNo,
     countCumulativeRankDistribution,
-    countRecommendsByAlgorithm,
     countPurchasesBySourceType,
     findPurchaseTrendByRecentDraws,
     findRecommendTrendByRecentDraws,
-    findRecentPurchases,
-    findRecentRecommends,
+    countRecommendsByAlgorithmAndDrwNo,
 };

@@ -19,74 +19,68 @@
     <section class="row row-summary">
         <div class="card card-summary">
             <div class="card-label">총 구매</div>
-            <div class="card-value" id="total-purchases">-</div>
+            <div class="card-value skeleton" id="total-purchases">-</div>
             <div class="card-sub">(전체)</div>
         </div>
         <div class="card card-summary">
             <div class="card-label">총 추천</div>
-            <div class="card-value" id="total-recommends">-</div>
+            <div class="card-value skeleton" id="total-recommends">-</div>
             <div class="card-sub">(전체)</div>
         </div>
         <div class="card card-summary">
             <div class="card-label">총 당첨</div>
-            <div class="card-value" id="total-wins">-</div>
+            <div class="card-value skeleton" id="total-wins">-</div>
             <div class="card-sub">(전체)</div>
         </div>
         <div class="card card-summary">
             <div class="card-label">당첨률</div>
-            <div class="card-value" id="win-rate">-</div>
+            <div class="card-value skeleton" id="win-rate">-</div>
             <div class="card-sub">(전체)</div>
         </div>
     </section>
 
-    <!-- 2행: 구매빈도 TOP10 | 실시간 최근3건 | 실시간 카운터 -->
+    <!-- 2행: 실시간 카운터 | 구매 비율 | 추천 비율 -->
     <section class="row row-detail">
         <div class="card card-counter">
             <div class="counter-block">
                 <div class="counter-label">실시간 구매</div>
-                <div class="counter-value" id="purchase-count">-</div>
+                <div class="counter-value skeleton" id="purchase-count">-</div>
             </div>
             <hr>
             <div class="counter-block">
                 <div class="counter-label">실시간 추천</div>
-                <div class="counter-value" id="recommend-count">-</div>
+                <div class="counter-value skeleton" id="recommend-count">-</div>
             </div>
         </div>
-<!--         <div class="card card-realtime-list"> -->
-<!--             <div class="realtime-section"> -->
-<!--                 <h3>실시간 구매 <small>(최근 3건)</small></h3> -->
-<!--                 <ul id="recent-purchases" class="recent-list"> -->
-<!--                     <li class="empty">데이터 없음</li> -->
-<!--                 </ul> -->
-<!--             </div> -->
-<!--             <hr> -->
-<!--             <div class="realtime-section"> -->
-<!--                 <h3>실시간 추천 <small>(최근 3건)</small></h3> -->
-<!--                 <ul id="recent-recommends" class="recent-list"> -->
-<!--                     <li class="empty">데이터 없음</li> -->
-<!--                 </ul> -->
-<!--             </div> -->
-<!--         </div> -->
-        <div class="card card-chart">
-            <h3>번호별 구매빈도 TOP 7 <small>(해당 회차)</small></h3>
-            <canvas id="chart-top-numbers"></canvas>
+        <div class="card card-chart skeleton">
+            <h3>구매 유형 비율 <small>(해당 회차)</small></h3>
+            <canvas id="chart-strategy"></canvas>
+            <div class="empty-message">데이터 없음</div>
+        </div>
+        <div class="card card-chart skeleton">
+            <h3>추천 전략 비율 <small>(해당 회차)</small></h3>
+            <canvas id="chart-algorithm"></canvas>
+            <div class="empty-message">데이터 없음</div>
         </div>
     </section>
 
-    <!-- 3행: 전략별 사용비율 | 최근 10회차 추이 | 누적 등수 분포 -->
+    <!-- 3행: 구매빈도 TOP7 | 7회차 추이 | 등수 분포 -->
     <section class="row row-analytics">
-        <div class="card card-chart">
-            <h3>실시간 구매 비율</h3>
-            <canvas id="chart-strategy"></canvas>
+        <div class="card card-chart skeleton">
+            <h3>번호별 구매빈도 TOP 7 <small>(해당 회차)</small></h3>
+            <canvas id="chart-top-numbers"></canvas>
+            <div class="empty-message">데이터 없음</div>
         </div>
-<!--         <div class="card card-chart"> -->
-<!--             <h3>최근 10회차 구매/추천 추이</h3> -->
-<!--             <canvas id="chart-trend"></canvas> -->
-<!--         </div> -->
-<!--         <div class="card card-chart"> -->
-<!--             <h3>전체 누적 당첨 등수 분포</h3> -->
-<!--             <canvas id="chart-rank"></canvas> -->
-<!--         </div> -->
+        <div class="card card-chart skeleton">
+            <h3>최근 7회차 구매/추천 추이 <small>(회차별)</small></h3>
+            <canvas id="chart-trend"></canvas>
+            <div class="empty-message">데이터 없음</div>
+        </div>
+        <div class="card card-chart skeleton">
+            <h3>전체 누적 당첨 등수 분포 <small>(전체)</small></h3>
+            <canvas id="chart-rank"></canvas>
+            <div class="empty-message">데이터 없음</div>
+        </div>
     </section>
 
     <script>

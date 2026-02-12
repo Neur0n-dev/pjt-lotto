@@ -12,7 +12,9 @@ const router = express.Router();
 const dashboardController = require('./dashboard.controller');
 
 // API 라우트 (/:drwNo 보다 먼저 선언)
-router.get('/api/summary', dashboardController.getDashboardSummary);
+router.get('/api/summary/row1', dashboardController.getSummaryRow1);
+router.get('/api/summary/row2', dashboardController.getSummaryRow2);
+router.get('/api/summary/row3', dashboardController.getSummaryRow3);
 router.get('/api/realtime', dashboardController.getRealtimeCounters);
 
 // 페이지 라우트

@@ -9,31 +9,60 @@
 const service = require('./dashboard.service');
 const { AppError, errorCodes } = require('../../common/errors');
 
+// drwNo 파싱 헬퍼 (NaN이면 null 반환)
+function parseDrwNo(value) {
+    if (!value) return null;
+    const n = Number(value);
+    return Number.isNaN(n) ? null : n;
+}
+
 // 대시보드 페이지 렌더링 GET /dashboard, GET /dashboard/:drwNo
 async function getDashboardPage(req, res, next) {
     try {
-        const drwNo = req.params.drwNo ? Number(req.params.drwNo) : null;
+        const drwNo = parseDrwNo(req.params.drwNo);
         res.render('dashboard', { drwNo });
     } catch (err) {
         next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
     }
 }
 
-// 대시보드 전체 요약 데이터 GET /dashboard/api/summary?drwNo=
-async function getDashboardSummary(req, res, next) {
+// 1행 요약 카드 GET /dashboard/api/summary/row1?drwNo=
+async function getSummaryRow1(req, res, next) {
     try {
-        const drwNo = req.query.drwNo ? Number(req.query.drwNo) : null;
-        const data = await service.getDashboardSummary(drwNo);
+        const drwNo = parseDrwNo(req.query.drwNo);
+        const data = await service.getSummaryRow1(drwNo);
         return res.json(data);
     } catch (err) {
         next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
     }
 }
 
-// 실시간 카운터 + 최근 3건 GET /dashboard/api/realtime?drwNo=
+// 2행 차트 GET /dashboard/api/summary/row2?drwNo=
+async function getSummaryRow2(req, res, next) {
+    try {
+        const drwNo = parseDrwNo(req.query.drwNo);
+        const data = await service.getSummaryRow2(drwNo);
+        return res.json(data);
+    } catch (err) {
+        next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
+    }
+}
+
+// 3행 차트 GET /dashboard/api/summary/row3?drwNo=
+async function getSummaryRow3(req, res, next) {
+    try {
+        const drwNo = parseDrwNo(req.query.drwNo);
+        const data = await service.getSummaryRow3(drwNo);
+        return res.json(data);
+    } catch (err) {
+        next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
+    }
+}
+
+// 실시간 카운터 GET /dashboard/api/realtime?drwNo=
 async function getRealtimeCounters(req, res, next) {
     try {
-        const drwNo = req.query.drwNo ? Number(req.query.drwNo) : null;
+        const drwNo = parseDrwNo(req.query.drwNo);
         const data = await service.getRealtimeCounters(drwNo);
         return res.json(data);
     } catch (err) {
@@ -43,6 +72,8 @@ async function getRealtimeCounters(req, res, next) {
 
 module.exports = {
     getDashboardPage,
-    getDashboardSummary,
+    getSummaryRow1,
+    getSummaryRow2,
+    getSummaryRow3,
     getRealtimeCounters,
 };
