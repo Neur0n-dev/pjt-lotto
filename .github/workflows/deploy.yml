@@ -24,7 +24,7 @@ jobs:
         run: cd /_pjt/lotto && git pull origin master
 
       - name: Install dependencies
-        run: cd /_pjt/lotto && npm install --production
+        run: cd /_pjt/lotto && npm install --omit=dev
 
       - name: Restart application
         run: cd /_pjt/lotto && pm2 restart lotto-api
