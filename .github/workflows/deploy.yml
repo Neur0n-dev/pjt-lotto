@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm install
+      - run: npm run lint
+
+  deploy:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          # key: ${{ secrets.SSH_KEY }}
+          script: |
+            su - neuron -c "cd /_pjt/lotto && git pull origin master && npm install --production && pm2 restart lotto-api"
