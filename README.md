@@ -34,6 +34,12 @@
 - EJS 템플릿 엔진
 - Chart.js (대시보드 차트)
 
+### CI/CD
+- GitHub Actions (lint + 자동 배포)
+- Self-hosted Runner
+- ESLint v9
+- PM2
+
 ### 기타
 - dotenv 환경 변수 관리
 - 동행복권 API 연동
@@ -48,6 +54,12 @@ lotto/
 ├─ app.js
 ├─ package.json
 ├─ .env                     # 환경 변수 (gitignore)
+├─ .nvmrc                   # Node.js 버전 (20)
+├─ eslint.config.js         # ESLint v9 설정
+├─ ecosystem.config.js      # PM2 설정 (앱명: lotto-api)
+├─ .github/
+│  └─ workflows/
+│     └─ deploy.yml         # GitHub Actions 워크플로우
 ├─ sql/
 │  ├─ query/                # 쿼리문
 │  ├─ schema/               # 테이블 DDL
@@ -313,6 +325,23 @@ npm start
 
 ---
 
+## CI/CD
+
+```
+master push → lint (GitHub 클라우드) → deploy (서버 self-hosted runner)
+```
+
+| 단계 | 실행 환경 | 동작 |
+|------|-----------|------|
+| lint | GitHub 클라우드 | `npm install` → `npm run lint` (ESLint) |
+| deploy | 서버 self-hosted runner | `git pull` → `npm install --omit=dev` → `pm2 restart lotto-api` |
+
+- master 브랜치 push 시 자동 실행
+- lint 실패 시 배포 중단
+- Self-hosted runner: 서버 neuron 계정에 설치
+
+---
+
 ## 데이터베이스
 
 ### 주요 테이블
@@ -355,4 +384,4 @@ npm start
 - [ ] 코드 정리 (미사용 유틸/에러코드/파일/미들웨어 제거)
 - [ ] 통계 API
 - [ ] 테스트 코드
-- [ ] 배포 설정
+- [x] CI/CD: GitHub Actions + Self-hosted Runner 자동 배포
