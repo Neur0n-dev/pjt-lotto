@@ -153,6 +153,7 @@ body {
     flex: 4;
     display: flex;
     flex-direction: column;
+    gap: 16px;
 }
 
 .step2-box {
@@ -168,6 +169,212 @@ body {
     font-weight: 700;
     color: #555;
     margin-bottom: 12px;
+}
+
+/* ===== 생성 개수 카운터 ===== */
+.count-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.counter-wrap {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-counter {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    background: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-counter:hover {
+    border-color: #4a90d9;
+    color: #4a90d9;
+}
+
+.btn-counter:active {
+    background: #4a90d9;
+    color: #fff;
+    border-color: #4a90d9;
+}
+
+.counter-value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #333;
+    min-width: 50px;
+    text-align: center;
+}
+
+.counter-hint {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+/* ===== 추천 버튼 ===== */
+.btn-recommend {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    background: #4a90d9;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-recommend:hover {
+    background: #3a7bc8;
+    box-shadow: 0 4px 12px rgba(74, 144, 217, 0.3);
+}
+
+.btn-recommend:active {
+    background: #2e6ab5;
+}
+
+/* ===== 포함 번호: 타이틀 + 툴팁 ===== */
+.step2-box-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tooltip-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.btn-tooltip {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid #4a90d9;
+    background: #fff;
+    color: #4a90d9;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-tooltip:hover {
+    background: #4a90d9;
+    color: #fff;
+}
+
+.tooltip-bubble {
+    display: none;
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 400;
+    padding: 8px 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.tooltip-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+}
+
+.tooltip-wrap:hover .tooltip-bubble {
+    display: block;
+}
+
+/* ===== 포함 번호: 입력 필드 ===== */
+.fixed-input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.input-fixed {
+    flex: 1 1 calc((100% - 50px) / 6);
+    min-width: calc((100% - 20px) / 3);
+    height: 44px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-fixed::placeholder {
+    color: #ccc;
+    font-weight: 400;
+}
+
+.input-fixed:focus {
+    border-color: #4a90d9;
+    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
+}
+
+/* ===== 제거 번호: 입력 필드 ===== */
+.exclude-input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.input-exclude {
+    flex: 1 1 calc((100% - 50px) / 6);
+    min-width: calc((100% - 20px) / 3);
+    height: 44px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-exclude::placeholder {
+    color: #ccc;
+    font-weight: 400;
+}
+
+.input-exclude:focus {
+    border-color: #4a90d9;
+    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
 }
 
 /* ===== 전략 선택 ===== */
@@ -193,12 +400,36 @@ body {
 }
 
 /* 전략별 색상 */
-.btn-strategy[data-strategy="random"]  { --sc: #4a90d9; }  /* 블루 */
-.btn-strategy[data-strategy="hotCold"] { --sc: #e85d5d; }  /* 레드 */
-.btn-strategy[data-strategy="evenOdd"] { --sc: #8e6fc0; }  /* 퍼플 */
-.btn-strategy[data-strategy="frequency"] { --sc: #43b581; } /* 그린 */
-.btn-strategy[data-strategy="sumRange"] { --sc: #e8a035; }  /* 앰버 */
-.btn-strategy[data-strategy="all"]     { --sc: #2c3e50; }  /* 다크 */
+.btn-strategy[data-strategy="random"] {
+    --sc: #4a90d9;
+}
+
+/* 블루 */
+.btn-strategy[data-strategy="hotCold"] {
+    --sc: #e85d5d;
+}
+
+/* 레드 */
+.btn-strategy[data-strategy="evenOdd"] {
+    --sc: #8e6fc0;
+}
+
+/* 퍼플 */
+.btn-strategy[data-strategy="frequency"] {
+    --sc: #43b581;
+}
+
+/* 그린 */
+.btn-strategy[data-strategy="sumRange"] {
+    --sc: #e8a035;
+}
+
+/* 앰버 */
+.btn-strategy[data-strategy="all"] {
+    --sc: #2c3e50;
+}
+
+/* 다크 */
 
 .btn-strategy:hover {
     border-color: var(--sc);
@@ -231,16 +462,209 @@ body {
 }
 
 /* 설명 왼쪽 보더 + 타이틀 전략별 색상 */
-.strategy-desc[data-strategy="random"]    { border-left-color: #4a90d9; }
-.strategy-desc[data-strategy="hotCold"]   { border-left-color: #e85d5d; }
-.strategy-desc[data-strategy="evenOdd"]   { border-left-color: #8e6fc0; }
-.strategy-desc[data-strategy="frequency"] { border-left-color: #43b581; }
-.strategy-desc[data-strategy="sumRange"]  { border-left-color: #e8a035; }
-.strategy-desc[data-strategy="all"]       { border-left-color: #2c3e50; }
+.strategy-desc[data-strategy="random"] {
+    border-left-color: #4a90d9;
+}
 
-.strategy-desc[data-strategy="random"] .desc-title    { color: #4a90d9; }
-.strategy-desc[data-strategy="hotCold"] .desc-title   { color: #e85d5d; }
-.strategy-desc[data-strategy="evenOdd"] .desc-title   { color: #8e6fc0; }
-.strategy-desc[data-strategy="frequency"] .desc-title { color: #43b581; }
-.strategy-desc[data-strategy="sumRange"] .desc-title  { color: #e8a035; }
-.strategy-desc[data-strategy="all"] .desc-title       { color: #2c3e50; }
+.strategy-desc[data-strategy="hotCold"] {
+    border-left-color: #e85d5d;
+}
+
+.strategy-desc[data-strategy="evenOdd"] {
+    border-left-color: #8e6fc0;
+}
+
+.strategy-desc[data-strategy="frequency"] {
+    border-left-color: #43b581;
+}
+
+.strategy-desc[data-strategy="sumRange"] {
+    border-left-color: #e8a035;
+}
+
+.strategy-desc[data-strategy="all"] {
+    border-left-color: #2c3e50;
+}
+
+.strategy-desc[data-strategy="random"] .desc-title {
+    color: #4a90d9;
+}
+
+.strategy-desc[data-strategy="hotCold"] .desc-title {
+    color: #e85d5d;
+}
+
+.strategy-desc[data-strategy="evenOdd"] .desc-title {
+    color: #8e6fc0;
+}
+
+.strategy-desc[data-strategy="frequency"] .desc-title {
+    color: #43b581;
+}
+
+.strategy-desc[data-strategy="sumRange"] .desc-title {
+    color: #e8a035;
+}
+
+.strategy-desc[data-strategy="all"] .desc-title {
+    color: #2c3e50;
+}
+
+/* ===== 추천 결과 ===== */
+.result-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+.result-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.result-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    transition: box-shadow 0.2s;
+}
+
+.result-card:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.result-balls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.ball {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 번호 구간별 색상 */
+.ball.range-1 {
+    background: linear-gradient(135deg, #fbc531, #e1b12c);
+}
+
+/* 1~10  노랑 */
+.ball.range-2 {
+    background: linear-gradient(135deg, #5b9ef4, #3a7bd5);
+}
+
+/* 11~20 파랑 */
+.ball.range-3 {
+    background: linear-gradient(135deg, #e85d5d, #c0392b);
+}
+
+/* 21~30 빨강 */
+.ball.range-4 {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+}
+
+/* 31~40 회색 */
+.ball.range-5 {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+/* 41~45 초록 */
+
+.result-strategy {
+    padding: 5px 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 6px;
+}
+
+.result-strategy[data-strategy="random"] {
+    background: #4a90d9;
+}
+
+.result-strategy[data-strategy="hotCold"] {
+    background: #e85d5d;
+}
+
+.result-strategy[data-strategy="evenOdd"] {
+    background: #8e6fc0;
+}
+
+.result-strategy[data-strategy="frequency"] {
+    background: #43b581;
+}
+
+.result-strategy[data-strategy="sumRange"] {
+    background: #e8a035;
+}
+
+.result-strategy[data-strategy="all"] {
+    background: #2c3e50;
+}
+
+/* ===== 모바일 반응형 ===== */
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    .drw-title {
+        font-size: 1.2rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    .step2-layout {
+        flex-direction: column;
+    }
+
+    .step2-right {
+        flex-direction: row;
+    }
+
+    .count-box {
+        flex: 1;
+    }
+
+    .btn-recommend {
+        flex: 1;
+        padding: 14px;
+    }
+
+    .btn-strategy {
+        width: calc(33.33% - 7px);
+        font-size: 0.85rem;
+        padding: 8px 0;
+    }
+
+    .result-list {
+        grid-template-columns: 1fr;
+    }
+
+    .ball {
+        width: 36px;
+        height: 36px;
+        font-size: 0.88rem;
+    }
+}
