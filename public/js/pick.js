@@ -181,9 +181,9 @@
             return [];
         }
 
-        return data.tickets.map(ticket => ({
+        return data.tickets.map((ticket, i) => ({
             numbers: ticket,
-            strategy: data.strategy
+            strategy: data.strategies ? data.strategies[i] : data.strategy
         }));
     }
 

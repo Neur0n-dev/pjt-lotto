@@ -14,7 +14,6 @@ const {
 const { AppError, errorCodes } = require('../../common/errors');
 
 const {
-    getStrategyNames,
     hasStrategy
 } = require('./strategies/index');
 

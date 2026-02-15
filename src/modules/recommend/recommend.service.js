@@ -35,16 +35,19 @@ async function createRecommend({
 
     // 티켓 생성
     const tickets = [];
+    const strategies = [];
     if (strategy === 'all') {
         const strategyKeys = Object.keys(STRATEGY_MAP);
         for (const key of strategyKeys) {
             tickets.push(await STRATEGY_MAP[key].execute(fixedNumbers, excludeNumbers));
+            strategies.push(key);
         }
     } else {
         const selectStrategy = STRATEGY_MAP[strategy];
         const ticketCount = Number.isInteger(count) ? count : parseInt(count, 10);
         for (let i = 0; i < ticketCount; i++) {
             tickets.push(await selectStrategy.execute(fixedNumbers, excludeNumbers));
+            strategies.push(strategy);
         }
     }
 
@@ -67,6 +70,7 @@ async function createRecommend({
         result: true,
         recommendId,
         strategy,
+        strategies,
         count: tickets.length,
         targetDrwNo,
         tickets
