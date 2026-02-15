@@ -72,8 +72,15 @@ async function hotColdStrategy(fixedNumbers = [], excludeNumbers = []) {
     // 고정 번호가 핫/콜드에 몇 개 속하는지 계산하여 필요 개수 조정
     const fixedInHot = fixedArr.filter(n => hotGroup.includes(n)).length;
     const fixedInCold = fixedArr.filter(n => coldGroup.includes(n)).length;
-    const needHot = Math.max(0, HOT_COUNT - fixedInHot);
-    const needCold = Math.max(0, COLD_COUNT - fixedInCold);
+    const totalNeeded = LOTTO_SIZE - fixedArr.length;
+    let needHot = Math.max(0, HOT_COUNT - fixedInHot);
+    let needCold = Math.max(0, COLD_COUNT - fixedInCold);
+
+    // 고정 번호가 핫/콜드 어느 쪽에도 속하지 않으면 초과되므로 조정
+    while (needHot + needCold > totalNeeded) {
+        if (needCold > 0) needCold--;
+        else needHot--;
+    }
 
     if (hotPool.length < needHot || coldPool.length < needCold) {
         throw new AppError(errorCodes.RECOMMEND_GENERATION_FAILED);
