@@ -79,14 +79,23 @@ function weightedPick(weighted, count) {
     for (let i = 0; i < count; i++) {
         const totalWeight = pool.reduce((sum, item) => sum + item.weight, 0);
         let rand = Math.random() * totalWeight;
+        let picked = false;
 
         for (let j = 0; j < pool.length; j++) {
             rand -= pool[j].weight;
             if (rand <= 0) {
                 result.push(pool[j].number);
                 pool.splice(j, 1);
+                picked = true;
                 break;
             }
+        }
+
+        // 부동소수점 오차로 선택 실패 시 마지막 원소 선택
+        if (!picked && pool.length > 0) {
+            const lastIdx = pool.length - 1;
+            result.push(pool[lastIdx].number);
+            pool.splice(lastIdx, 1);
         }
     }
 
