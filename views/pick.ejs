@@ -11,7 +11,7 @@
     <header class="header">
         <div class="header-top">
             <a href="/dashboard" class="btn-nav" title="대시보드로 이동">&#9664; 이전</a>
-            <h1 class="drw-title">--- 회차 로또 번호 추천</h1>
+            <h1 class="drw-title" id="drw-title">--- 회차 로또 번호 추천</h1>
         </div>
         <p class="header-sub">원하는 추천 방식을 선택하고 결과를 확인하세요.</p>
     </header>
@@ -127,6 +127,9 @@
         </div>
         <div class="result-list" id="result-list"></div>
     </section>
+
+    <!-- 토스트 알림 -->
+    <div class="toast-container" id="toast-container"></div>
 
     <script src="/js/pick.js?v=<%= Date.now() %>"></script>
 </body>
