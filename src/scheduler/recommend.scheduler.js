@@ -134,7 +134,7 @@ const MODES = {
 const MODE_NAMES = Object.keys(MODES);
 
 /**
- * - 20분마다 호출되는 핵심 실행 함수
+ * - 10분마다 호출되는 핵심 실행 함수
  * - isRunning 가드로 동시 실행 방지
  * - 추천 불가 시간이면 skip
  * - 모드 랜덤 선택 → fixedNumbers/excludeNumbers 산출
@@ -183,14 +183,14 @@ async function executeRecommend() {
  */
 function start() {
     // Cron 6필드: 초 분 시 일 월 요일
-    // '0 */20 * * * *' = 매 20분 정각
-    const schedule = '0 */20 * * * *';
+    // '0 */10 * * * *' = 매 20분 정각
+    const schedule = '0 */10 * * * *';
 
     cron.schedule(schedule, executeRecommend, {
         timezone: 'Asia/Seoul'
     });
 
-    console.log('[Recommend Scheduler] 스케줄러 시작 (20분 간격)');
+    console.log('[Recommend Scheduler] 스케줄러 시작 (10분 간격)');
 }
 
 module.exports = {
