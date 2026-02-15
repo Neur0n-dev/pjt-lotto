@@ -394,8 +394,9 @@ master push → lint (GitHub 클라우드) → deploy (서버 self-hosted runner
 - [x] Dashboard: 대시보드 (EJS + Chart.js, 행별 API 분리)
 - [x] Pick: 번호추천 페이지 (3단계 UI, 전략별 색상, 프로그레스 바)
 - [x] Pick: API 오류 시 토스트 알림 (에러 메시지/검증 에러 표시)
-- [ ] Pick: all 전략 결과 카드에 개별 전략 태그 표시
-- [ ] Pick: 코드 리팩토링 및 프론트 유효성 검증
+- [x] Pick: all 전략 결과 카드에 개별 전략 태그 표시
+- [x] Pick: 코드 리팩토링 (소스 순서 정리, var→const/let, DOM 통합, 화살표 함수 통일)
+- [x] Dashboard: 추천 집계 기준 변경 (recommend_run → recommend_number 티켓 단위)
 - [ ] 코드 정리 (미사용 유틸/에러코드/파일/미들웨어 제거)
 - [ ] 통계 API
 - [ ] 테스트 코드

@@ -29,8 +29,8 @@ async function countTotalPurchases() {
  */
 async function countTotalRecommends() {
     const sql = `
-        SELECT COUNT(*) AS total
-        FROM t_lotto_recommend_run
+        SELECT COUNT(DISTINCT recommend_id, set_no) AS total
+        FROM t_lotto_recommend_number
     `;
 
     const rows = await db.query(sql);
@@ -130,9 +130,10 @@ async function countPurchasesByTargetDrwNo(drwNo) {
  */
 async function countRecommendsByTargetDrwNo(drwNo) {
     const sql = `
-        SELECT COUNT(*) AS total
-        FROM t_lotto_recommend_run
-        WHERE target_drw_no = ?
+        SELECT COUNT(DISTINCT rn.recommend_id, rn.set_no) AS total
+        FROM t_lotto_recommend_number rn
+            INNER JOIN t_lotto_recommend_run rr ON rn.recommend_id = rr.recommend_id
+        WHERE rr.target_drw_no = ?
     `;
 
     const rows = await db.query(sql, [drwNo]);
@@ -182,10 +183,11 @@ async function countCumulativeRankDistribution() {
  */
 async function countRecommendsByAlgorithmAndDrwNo(drwNo) {
     const sql = `
-        SELECT algorithm, COUNT(*) AS count
-        FROM t_lotto_recommend_run
-        WHERE target_drw_no = ?
-        GROUP BY algorithm
+        SELECT rr.algorithm, COUNT(DISTINCT rn.recommend_id, rn.set_no) AS count
+        FROM t_lotto_recommend_number rn
+            INNER JOIN t_lotto_recommend_run rr ON rn.recommend_id = rr.recommend_id
+        WHERE rr.target_drw_no = ?
+        GROUP BY rr.algorithm
         ORDER BY count DESC
     `;
 
@@ -250,9 +252,10 @@ async function findRecommendTrendByRecentDraws(drwNo) {
             UNION ALL SELECT 6
             ) n
             LEFT JOIN (
-            SELECT target_drw_no, COUNT(*) AS cnt
-            FROM t_lotto_recommend_run
-            GROUP BY target_drw_no
+            SELECT rr.target_drw_no, COUNT(DISTINCT rn.recommend_id, rn.set_no) AS cnt
+            FROM t_lotto_recommend_number rn
+                INNER JOIN t_lotto_recommend_run rr ON rn.recommend_id = rr.recommend_id
+            GROUP BY rr.target_drw_no
             ) r ON (drw.base - n.offset) = r.target_drw_no
         WHERE (drw.base - n.offset) > 0
         ORDER BY drw_no ASC
