@@ -13,8 +13,8 @@ const drawRepository = require('../modules/draw/draw.repository');
 const { getKstDate, formatDate, getRandomInt } = require('../common/utils');
 
 /** tick당 생성 티켓 수 범위 */
-const MIN_TICKETS_PER_TICK = 5;
-const MAX_TICKETS_PER_TICK = 10;
+const MIN_TICKETS_PER_TICK = 10;
+const MAX_TICKETS_PER_TICK = 15;
 
 /** 동시 실행 방지 플래그 */
 let isRunning = false;
