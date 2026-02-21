@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'lotto-api',
+    name: 'lotto',
     script: './bin/www',
     env: {
       NODE_ENV: 'production',
