@@ -260,12 +260,28 @@ body {
     }
 }
 
+@media (max-width: 600px) {
+    .header {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 16px;
+    }
+    .btn-pick {
+        position: static;
+        width: 100%;
+        text-align: center;
+        order: 10;
+        padding: 10px 16px;
+        font-size: 1rem;
+    }
+}
+
 @media (max-width: 500px) {
     .row-summary {
         grid-template-columns: 1fr;
     }
     .header {
-        gap: 12px;
+        gap: 8px;
     }
     .drw-title {
         font-size: 1.2rem;
