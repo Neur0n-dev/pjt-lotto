@@ -312,7 +312,7 @@
     fetchAllSummary();
     fetchRealtime();
 
-    var realtimeTimer = setInterval(fetchRealtime, 5000);
+    var realtimeTimer = setInterval(fetchRealtime, 1000);
     var summaryTimer = setInterval(fetchAllSummary, 60000);
 
     // 페이지 비활성 시 폴링 중지, 활성 시 재개
@@ -323,7 +323,7 @@
         } else {
             fetchRealtime();
             fetchAllSummary();
-            realtimeTimer = setInterval(fetchRealtime, 5000);
+            realtimeTimer = setInterval(fetchRealtime, 1000);
             summaryTimer = setInterval(fetchAllSummary, 60000);
         }
     });

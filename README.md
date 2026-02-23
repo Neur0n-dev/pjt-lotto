@@ -170,12 +170,13 @@ lotto/
 
 | Method | URL | 설명 |
 |--------|-----|------|
+| GET | `/` | 대시보드 리다이렉트 (`/dashboard`로 이동) |
 | GET | `/dashboard` | 대시보드 페이지 (최신 회차) |
 | GET | `/dashboard/:drwNo` | 대시보드 페이지 (특정 회차) |
 | GET | `/dashboard/api/summary/row1` | 1행 요약 카드 데이터 (60초 폴링) |
 | GET | `/dashboard/api/summary/row2` | 2행 구매/추천 비율 차트 (60초 폴링) |
 | GET | `/dashboard/api/summary/row3` | 3행 빈도/추이/등수 차트 (60초 폴링) |
-| GET | `/dashboard/api/realtime` | 실시간 카운터 (5초 폴링) |
+| GET | `/dashboard/api/realtime` | 실시간 카운터 (1초 폴링) |
 
 ### Pick (번호추천 페이지)
 

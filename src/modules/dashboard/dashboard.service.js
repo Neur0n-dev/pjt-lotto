@@ -137,7 +137,7 @@ async function getSummaryRow3(drwNo) {
 }
 
 /**
- * 실시간 데이터 조회 (5초 폴링용, 경량)
+ * 실시간 데이터 조회 (1초 폴링용, 경량)
  * @param {number|undefined} drwNo - 대상 회차 (없으면 최신)
  * @returns {Promise<object>} 실시간 카운터
  */

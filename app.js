@@ -47,6 +47,9 @@ app.use('/recommend', recommendRoutes);
 app.use('/evaluate', evaluateRoutes);
 app.use('/dashboard', dashboardRoutes);
 
+// 루트 → 대시보드 리다이렉트
+app.get('/', (req, res) => res.redirect('/dashboard'));
+
 // 번호추천 페이지
 app.get('/pick', (req, res) => res.render('pick'));
 

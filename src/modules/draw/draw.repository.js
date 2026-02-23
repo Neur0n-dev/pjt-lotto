@@ -143,6 +143,16 @@ async function findNumberFrequency(rounds = 20) {
     return db.query(sql, [rounds]);
 }
 
+/**
+ * 전체 회차 번호 목록 조회 (오름차순)
+ * @returns {Promise<number[]>} drwNo 배열
+ */
+async function findAllDrawNos() {
+    const sql = `SELECT drw_no FROM t_lotto_draw ORDER BY drw_no ASC`;
+    const rows = await db.query(sql);
+    return rows.map(r => r.drw_no);
+}
+
 module.exports = {
     insertDraw,
     insertDrawNumbers,
@@ -151,4 +161,5 @@ module.exports = {
     findDrawByNo,
     findDrawNumbers,
     findNumberFrequency,
+    findAllDrawNos,
 };

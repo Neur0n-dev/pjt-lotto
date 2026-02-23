@@ -8,12 +8,21 @@
 
 const service = require('./dashboard.service');
 const { AppError, errorCodes } = require('../../common/errors');
+const dashboardCache = require('../../cache/dashboard.cache');
+const drawRepository = require('../draw/draw.repository');
 
 // drwNo 파싱 헬퍼 (NaN이면 null 반환)
 function parseDrwNo(value) {
     if (!value) return null;
     const n = Number(value);
     return Number.isNaN(n) ? null : n;
+}
+
+// drwNo가 없으면 최신 회차 조회
+async function resolveTargetDrwNo(drwNo) {
+    if (drwNo) return drwNo;
+    const latest = await drawRepository.findLatestDraw();
+    return latest ? latest.drw_no : 1;
 }
 
 // 대시보드 페이지 렌더링 GET /dashboard, GET /dashboard/:drwNo
@@ -29,8 +38,12 @@ async function getDashboardPage(req, res, next) {
 // 1행 요약 카드 GET /dashboard/api/summary/row1?drwNo=
 async function getSummaryRow1(req, res, next) {
     try {
-        const drwNo = parseDrwNo(req.query.drwNo);
+        const drwNo = await resolveTargetDrwNo(parseDrwNo(req.query.drwNo));
+        const cached = dashboardCache.get('row1', drwNo);
+        if (cached) return res.json(cached);
+
         const data = await service.getSummaryRow1(drwNo);
+        dashboardCache.set('row1', drwNo, data);
         return res.json(data);
     } catch (err) {
         next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
@@ -40,8 +53,12 @@ async function getSummaryRow1(req, res, next) {
 // 2행 차트 GET /dashboard/api/summary/row2?drwNo=
 async function getSummaryRow2(req, res, next) {
     try {
-        const drwNo = parseDrwNo(req.query.drwNo);
+        const drwNo = await resolveTargetDrwNo(parseDrwNo(req.query.drwNo));
+        const cached = dashboardCache.get('row2', drwNo);
+        if (cached) return res.json(cached);
+
         const data = await service.getSummaryRow2(drwNo);
+        dashboardCache.set('row2', drwNo, data);
         return res.json(data);
     } catch (err) {
         next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
@@ -51,8 +68,12 @@ async function getSummaryRow2(req, res, next) {
 // 3행 차트 GET /dashboard/api/summary/row3?drwNo=
 async function getSummaryRow3(req, res, next) {
     try {
-        const drwNo = parseDrwNo(req.query.drwNo);
+        const drwNo = await resolveTargetDrwNo(parseDrwNo(req.query.drwNo));
+        const cached = dashboardCache.get('row3', drwNo);
+        if (cached) return res.json(cached);
+
         const data = await service.getSummaryRow3(drwNo);
+        dashboardCache.set('row3', drwNo, data);
         return res.json(data);
     } catch (err) {
         next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
