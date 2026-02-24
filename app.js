@@ -2,9 +2,6 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
-var swaggerUi = require('swagger-ui-express');
-var swaggerSpec = require('./src/config/swagger');
-
 var drawRoutes = require('./src/modules/draw/draw.routes')
 var purchaseRoutes = require('./src/modules/purchase/purchase.routes')
 var recommendRoutes = require('./src/modules/recommend/recommend.routes')
@@ -36,8 +33,6 @@ app.use(logger(function (tokens, req, res) {
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/draw', drawRoutes);
 app.use('/purchase', purchaseRoutes);
