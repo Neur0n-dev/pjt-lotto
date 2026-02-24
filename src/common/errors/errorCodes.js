@@ -19,11 +19,6 @@ module.exports = {
         status: 400,
         message: '유효하지 않은 파라미터입니다.'
     },
-    NOT_FOUND: {
-        code: 1002,
-        status: 404,
-        message: '데이터를 찾을 수 없습니다.'
-    },
     INTERNAL_ERROR: {
         code: 1003,
         status: 500,
@@ -72,21 +67,6 @@ module.exports = {
     // ================================
     // Recommend 모듈 (3XXX)
     // ================================
-    RECOMMEND_INVALID_STRATEGY: {
-        code: 3001,
-        status: 400,
-        message: '유효하지 않은 추천 전략입니다.'
-    },
-    RECOMMEND_INVALID_COUNT: {
-        code: 3002,
-        status: 400,
-        message: '추천 개수는 1~10 사이여야 합니다.'
-    },
-    RECOMMEND_INVALID_NUMBERS: {
-        code: 3003,
-        status: 400,
-        message: '유효하지 않은 번호입니다. (1~45)'
-    },
     RECOMMEND_NOT_FOUND: {
         code: 3004,
         status: 404,
@@ -115,11 +95,6 @@ module.exports = {
         code: 4003,
         status: 404,
         message: '구매 정보를 찾을 수 없습니다.'
-    },
-    PURCHASE_TIME_NOT_ALLOWED: {
-        code: 4004,
-        status: 400,
-        message: '구매 가능 시간이 아닙니다.'
     },
     PURCHASE_REQUIRED_SOURCE_TYPE: {
         code: 4005,
