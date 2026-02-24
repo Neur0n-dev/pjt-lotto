@@ -22,15 +22,40 @@ jobs:
       - run: npm install
       - run: npm run lint
 
-  deploy:
+  build-push:
     needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get short SHA
+        id: vars
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/lotto:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/lotto:sha-${{ steps.vars.outputs.sha }}
+
+  deploy:
+    needs: build-push
     runs-on: self-hosted
     steps:
       - name: Pull latest code
         run: cd /_pjt/lotto && git fetch origin master && git reset --hard origin/master
 
-      - name: Install dependencies
-        run: cd /_pjt/lotto && npm install --omit=dev
+      - name: Pull Docker image
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/lotto:latest
 
-      - name: Restart application
-        run: cd /_pjt/lotto && pm2 restart lotto
+      - name: Restart container
+        run: cd /_pjt/lotto && docker compose up -d
