@@ -38,13 +38,17 @@ async function getDashboardPage(req, res, next) {
 // 1행 요약 카드 GET /dashboard/api/summary/row1?drwNo=
 async function getSummaryRow1(req, res, next) {
     try {
-        const drwNo = await resolveTargetDrwNo(parseDrwNo(req.query.drwNo));
+        // latestDrwNo는 캐시 stale 방지를 위해 항상 fresh 조회
+        const latestDraw = await drawRepository.findLatestDraw();
+        const latestDrwNo = latestDraw ? latestDraw.drw_no : 1;
+        const drwNo = parseDrwNo(req.query.drwNo) || latestDrwNo;
+
         const cached = dashboardCache.get('row1', drwNo);
-        if (cached) return res.json(cached);
+        if (cached) return res.json({ ...cached, latestDrwNo });
 
         const data = await service.getSummaryRow1(drwNo);
         dashboardCache.set('row1', drwNo, data);
-        return res.json(data);
+        return res.json({ ...data, latestDrwNo });
     } catch (err) {
         next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
     }

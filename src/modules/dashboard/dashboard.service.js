@@ -28,10 +28,6 @@ async function findTargetDrwNo(drwNo) {
  * @returns {Promise<object>} drwNo, latestDrwNo, summary
  */
 async function getSummaryRow1(drwNo) {
-    const latestDraw = await drawRepository.findLatestDraw();
-    const latestDrwNo = latestDraw ? latestDraw.drw_no : 1;
-    const targetDrwNo = drwNo || latestDrwNo;
-
     const [
         totalPurchases,
         totalRecommends,
@@ -53,8 +49,7 @@ async function getSummaryRow1(drwNo) {
 
     return {
         result: true,
-        drwNo: targetDrwNo,
-        latestDrwNo,
+        drwNo,
         summary: {
             totalPurchases,
             totalRecommends,
